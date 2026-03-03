@@ -1,0 +1,967 @@
+{
+  "_meta": {
+    "proyecto": "Powerlifting Argentina Data Analysis",
+    "capa": "Capa 01 — Análisis Descriptivo Base",
+    "dataset": "burnished-rider-368414.Openpowerlifting.OpenDataRaw",
+    "ultima_actualizacion": "2026-03-02",
+    "nota": "Reemplazar los valores de ejemplo con los resultados reales de BigQuery"
+  },
+  "q1_volumen": {
+    "atletas_unicos": 2521,
+    "participaciones_totales": 11514,
+    "participaciones_promedio_por_atleta": 4.57
+  },
+  "q2_sexo": [
+    {
+      "Sex": "M",
+      "participaciones": 8934,
+      "porcentaje": 77.59
+    },
+    {
+      "Sex": "F",
+      "participaciones": 2580,
+      "porcentaje": 22.41
+    }
+  ],
+  "q3_federaciones": [
+    {
+      "Federation": "AAP",
+      "participaciones": 3032,
+      "porcentaje": 26.33,
+      "atletas_unicos": 838
+    },
+    {
+      "Federation": "WRPF-Argentina",
+      "participaciones": 1242,
+      "porcentaje": 10.79,
+      "atletas_unicos": 543
+    },
+    {
+      "Federation": "ARPL",
+      "participaciones": 1144,
+      "porcentaje": 9.94,
+      "atletas_unicos": 523
+    },
+    {
+      "Federation": "FALPO",
+      "participaciones": 1058,
+      "porcentaje": 9.19,
+      "atletas_unicos": 395
+    },
+    {
+      "Federation": "FEPOA",
+      "participaciones": 1022,
+      "porcentaje": 8.88,
+      "atletas_unicos": 304
+    },
+    {
+      "Federation": "FESUPO",
+      "participaciones": 851,
+      "porcentaje": 7.39,
+      "atletas_unicos": 432
+    },
+    {
+      "Federation": "GPC",
+      "participaciones": 739,
+      "porcentaje": 6.42,
+      "atletas_unicos": 275
+    },
+    {
+      "Federation": "GPA",
+      "participaciones": 647,
+      "porcentaje": 5.62,
+      "atletas_unicos": 306
+    },
+    {
+      "Federation": "THSPA",
+      "participaciones": 441,
+      "porcentaje": 3.83,
+      "atletas_unicos": 62
+    },
+    {
+      "Federation": "APUA",
+      "participaciones": 405,
+      "porcentaje": 3.52,
+      "atletas_unicos": 184
+    },
+    {
+      "Federation": "IPL",
+      "participaciones": 200,
+      "porcentaje": 1.74,
+      "atletas_unicos": 134
+    },
+    {
+      "Federation": "IPF",
+      "participaciones": 172,
+      "porcentaje": 1.49,
+      "atletas_unicos": 105
+    },
+    {
+      "Federation": "WPPL-Argentina",
+      "participaciones": 136,
+      "porcentaje": 1.18,
+      "atletas_unicos": 119
+    },
+    {
+      "Federation": "WABDL",
+      "participaciones": 119,
+      "porcentaje": 1.03,
+      "atletas_unicos": 25
+    },
+    {
+      "Federation": "WPPO",
+      "participaciones": 79,
+      "porcentaje": 0.69,
+      "atletas_unicos": 25
+    },
+    {
+      "Federation": "THSWPA",
+      "participaciones": 75,
+      "porcentaje": 0.65,
+      "atletas_unicos": 9
+    },
+    {
+      "Federation": "WRPF-Chile",
+      "participaciones": 20,
+      "porcentaje": 0.17,
+      "atletas_unicos": 18
+    },
+    {
+      "Federation": "CRPL",
+      "participaciones": 14,
+      "porcentaje": 0.12,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "WPC",
+      "participaciones": 12,
+      "porcentaje": 0.1,
+      "atletas_unicos": 6
+    },
+    {
+      "Federation": "WRPF",
+      "participaciones": 10,
+      "porcentaje": 0.09,
+      "atletas_unicos": 9
+    },
+    {
+      "Federation": "ProRaw",
+      "participaciones": 9,
+      "porcentaje": 0.08,
+      "atletas_unicos": 6
+    },
+    {
+      "Federation": "USPF",
+      "participaciones": 9,
+      "porcentaje": 0.08,
+      "atletas_unicos": 5
+    },
+    {
+      "Federation": "NAPF",
+      "participaciones": 8,
+      "porcentaje": 0.07,
+      "atletas_unicos": 6
+    },
+    {
+      "Federation": "PLU",
+      "participaciones": 8,
+      "porcentaje": 0.07,
+      "atletas_unicos": 8
+    },
+    {
+      "Federation": "AAU",
+      "participaciones": 5,
+      "porcentaje": 0.04,
+      "atletas_unicos": 2
+    },
+    {
+      "Federation": "FECHIPO",
+      "participaciones": 5,
+      "porcentaje": 0.04,
+      "atletas_unicos": 4
+    },
+    {
+      "Federation": "ADFPA",
+      "participaciones": 4,
+      "porcentaje": 0.03,
+      "atletas_unicos": 2
+    },
+    {
+      "Federation": "USPA",
+      "participaciones": 3,
+      "porcentaje": 0.03,
+      "atletas_unicos": 2
+    },
+    {
+      "Federation": "FPP",
+      "participaciones": 3,
+      "porcentaje": 0.03,
+      "atletas_unicos": 2
+    },
+    {
+      "Federation": "IPA",
+      "participaciones": 3,
+      "porcentaje": 0.03,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "APU",
+      "participaciones": 3,
+      "porcentaje": 0.03,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "WRPF-AUS",
+      "participaciones": 3,
+      "porcentaje": 0.03,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "APF",
+      "participaciones": 3,
+      "porcentaje": 0.03,
+      "atletas_unicos": 2
+    },
+    {
+      "Federation": "GPC-Brazil",
+      "participaciones": 3,
+      "porcentaje": 0.03,
+      "atletas_unicos": 3
+    },
+    {
+      "Federation": "WRPF-Spain",
+      "participaciones": 3,
+      "porcentaje": 0.03,
+      "atletas_unicos": 2
+    },
+    {
+      "Federation": "XPC",
+      "participaciones": 2,
+      "porcentaje": 0.02,
+      "atletas_unicos": 2
+    },
+    {
+      "Federation": "PLRD",
+      "participaciones": 2,
+      "porcentaje": 0.02,
+      "atletas_unicos": 2
+    },
+    {
+      "Federation": "RPS",
+      "participaciones": 2,
+      "porcentaje": 0.02,
+      "atletas_unicos": 2
+    },
+    {
+      "Federation": "USA-UA",
+      "participaciones": 2,
+      "porcentaje": 0.02,
+      "atletas_unicos": 2
+    },
+    {
+      "Federation": "WPPL",
+      "participaciones": 1,
+      "porcentaje": 0.01,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "FPPR",
+      "participaciones": 1,
+      "porcentaje": 0.01,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "FPR",
+      "participaciones": 1,
+      "porcentaje": 0.01,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "FEMEPO",
+      "participaciones": 1,
+      "porcentaje": 0.01,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "NASA",
+      "participaciones": 1,
+      "porcentaje": 0.01,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "GPC-AUS",
+      "participaciones": 1,
+      "porcentaje": 0.01,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "FHSAA",
+      "participaciones": 1,
+      "porcentaje": 0.01,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "ABS",
+      "participaciones": 1,
+      "porcentaje": 0.01,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "SPF",
+      "participaciones": 1,
+      "porcentaje": 0.01,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "GPA-COL",
+      "participaciones": 1,
+      "porcentaje": 0.01,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "WRPF-Colombia",
+      "participaciones": 1,
+      "porcentaje": 0.01,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "USAPL",
+      "participaciones": 1,
+      "porcentaje": 0.01,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "CPC",
+      "participaciones": 1,
+      "porcentaje": 0.01,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "PAP",
+      "participaciones": 1,
+      "porcentaje": 0.01,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "ACHIPO",
+      "participaciones": 1,
+      "porcentaje": 0.01,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "NZPF",
+      "participaciones": 1,
+      "porcentaje": 0.01,
+      "atletas_unicos": 1
+    }
+  ],
+  "q4a_eventos": [
+    {
+      "Event": "SBD",
+      "participaciones": 7475,
+      "porcentaje": 64.92
+    },
+    {
+      "Event": "B",
+      "participaciones": 2524,
+      "porcentaje": 21.92
+    },
+    {
+      "Event": "D",
+      "participaciones": 960,
+      "porcentaje": 8.34
+    },
+    {
+      "Event": "BD",
+      "participaciones": 513,
+      "porcentaje": 4.46
+    },
+    {
+      "Event": "S",
+      "participaciones": 39,
+      "porcentaje": 0.34
+    },
+    {
+      "Event": "SB",
+      "participaciones": 3,
+      "porcentaje": 0.03
+    }
+  ],
+  "q4b_equipamiento": [
+    {
+      "Equipment": "Raw",
+      "participaciones": 5561,
+      "porcentaje": 48.3
+    },
+    {
+      "Equipment": "Wraps",
+      "participaciones": 3538,
+      "porcentaje": 30.73
+    },
+    {
+      "Equipment": "Single-ply",
+      "participaciones": 1515,
+      "porcentaje": 13.16
+    },
+    {
+      "Equipment": "Multi-ply",
+      "participaciones": 732,
+      "porcentaje": 6.36
+    },
+    {
+      "Equipment": "Unlimited",
+      "participaciones": 168,
+      "porcentaje": 1.46
+    }
+  ],
+  "q6a_peso": [
+    {
+      "WeightClassKg": "44",
+      "participaciones": 33,
+      "porcentaje": 0.29
+    },
+    {
+      "WeightClassKg": "44.2",
+      "participaciones": 12,
+      "porcentaje": 0.1
+    },
+    {
+      "WeightClassKg": "45",
+      "participaciones": 5,
+      "porcentaje": 0.04
+    },
+    {
+      "WeightClassKg": "47",
+      "participaciones": 27,
+      "porcentaje": 0.24
+    },
+    {
+      "WeightClassKg": "47.8",
+      "participaciones": 2,
+      "porcentaje": 0.02
+    },
+    {
+      "WeightClassKg": "48",
+      "participaciones": 116,
+      "porcentaje": 1.01
+    },
+    {
+      "WeightClassKg": "49",
+      "participaciones": 10,
+      "porcentaje": 0.09
+    },
+    {
+      "WeightClassKg": "50",
+      "participaciones": 4,
+      "porcentaje": 0.03
+    },
+    {
+      "WeightClassKg": "51.7",
+      "participaciones": 7,
+      "porcentaje": 0.06
+    },
+    {
+      "WeightClassKg": "51.9",
+      "participaciones": 12,
+      "porcentaje": 0.1
+    },
+    {
+      "WeightClassKg": "52",
+      "participaciones": 268,
+      "porcentaje": 2.34
+    },
+    {
+      "WeightClassKg": "53",
+      "participaciones": 1,
+      "porcentaje": 0.01
+    },
+    {
+      "WeightClassKg": "54",
+      "participaciones": 4,
+      "porcentaje": 0.03
+    },
+    {
+      "WeightClassKg": "55",
+      "participaciones": 1,
+      "porcentaje": 0.01
+    },
+    {
+      "WeightClassKg": "55.7",
+      "participaciones": 47,
+      "porcentaje": 0.41
+    },
+    {
+      "WeightClassKg": "56",
+      "participaciones": 349,
+      "porcentaje": 3.05
+    },
+    {
+      "WeightClassKg": "57",
+      "participaciones": 68,
+      "porcentaje": 0.59
+    },
+    {
+      "WeightClassKg": "59",
+      "participaciones": 65,
+      "porcentaje": 0.57
+    },
+    {
+      "WeightClassKg": "59.8",
+      "participaciones": 9,
+      "porcentaje": 0.08
+    },
+    {
+      "WeightClassKg": "60",
+      "participaciones": 500,
+      "porcentaje": 4.37
+    },
+    {
+      "WeightClassKg": "60.1",
+      "participaciones": 3,
+      "porcentaje": 0.03
+    },
+    {
+      "WeightClassKg": "63",
+      "participaciones": 59,
+      "porcentaje": 0.52
+    },
+    {
+      "WeightClassKg": "65",
+      "participaciones": 11,
+      "porcentaje": 0.1
+    },
+    {
+      "WeightClassKg": "66",
+      "participaciones": 103,
+      "porcentaje": 0.9
+    },
+    {
+      "WeightClassKg": "67",
+      "participaciones": 1,
+      "porcentaje": 0.01
+    },
+    {
+      "WeightClassKg": "67.1",
+      "participaciones": 57,
+      "porcentaje": 0.5
+    },
+    {
+      "WeightClassKg": "67.3",
+      "participaciones": 16,
+      "porcentaje": 0.14
+    },
+    {
+      "WeightClassKg": "67.5",
+      "participaciones": 934,
+      "porcentaje": 8.17
+    },
+    {
+      "WeightClassKg": "69",
+      "participaciones": 35,
+      "porcentaje": 0.31
+    },
+    {
+      "WeightClassKg": "72",
+      "participaciones": 41,
+      "porcentaje": 0.36
+    },
+    {
+      "WeightClassKg": "74",
+      "participaciones": 212,
+      "porcentaje": 1.85
+    },
+    {
+      "WeightClassKg": "74.8",
+      "participaciones": 63,
+      "porcentaje": 0.55
+    },
+    {
+      "WeightClassKg": "75",
+      "participaciones": 1354,
+      "porcentaje": 11.84
+    },
+    {
+      "WeightClassKg": "76",
+      "participaciones": 30,
+      "porcentaje": 0.26
+    },
+    {
+      "WeightClassKg": "80",
+      "participaciones": 3,
+      "porcentaje": 0.03
+    },
+    {
+      "WeightClassKg": "82.1",
+      "participaciones": 47,
+      "porcentaje": 0.41
+    },
+    {
+      "WeightClassKg": "82.5",
+      "participaciones": 1487,
+      "porcentaje": 13.01
+    },
+    {
+      "WeightClassKg": "83",
+      "participaciones": 224,
+      "porcentaje": 1.96
+    },
+    {
+      "WeightClassKg": "84",
+      "participaciones": 44,
+      "porcentaje": 0.38
+    },
+    {
+      "WeightClassKg": "86",
+      "participaciones": 1,
+      "porcentaje": 0.01
+    },
+    {
+      "WeightClassKg": "88",
+      "participaciones": 7,
+      "porcentaje": 0.06
+    },
+    {
+      "WeightClassKg": "89.8",
+      "participaciones": 49,
+      "porcentaje": 0.43
+    },
+    {
+      "WeightClassKg": "90",
+      "participaciones": 1426,
+      "porcentaje": 12.47
+    },
+    {
+      "WeightClassKg": "90.7",
+      "participaciones": 1,
+      "porcentaje": 0.01
+    },
+    {
+      "WeightClassKg": "93",
+      "participaciones": 213,
+      "porcentaje": 1.86
+    },
+    {
+      "WeightClassKg": "95",
+      "participaciones": 2,
+      "porcentaje": 0.02
+    },
+    {
+      "WeightClassKg": "97",
+      "participaciones": 5,
+      "porcentaje": 0.04
+    },
+    {
+      "WeightClassKg": "99.7",
+      "participaciones": 44,
+      "porcentaje": 0.38
+    },
+    {
+      "WeightClassKg": "100",
+      "participaciones": 1230,
+      "porcentaje": 10.76
+    },
+    {
+      "WeightClassKg": "105",
+      "participaciones": 129,
+      "porcentaje": 1.13
+    },
+    {
+      "WeightClassKg": "107",
+      "participaciones": 1,
+      "porcentaje": 0.01
+    },
+    {
+      "WeightClassKg": "109.7",
+      "participaciones": 46,
+      "porcentaje": 0.4
+    },
+    {
+      "WeightClassKg": "110",
+      "participaciones": 893,
+      "porcentaje": 7.81
+    },
+    {
+      "WeightClassKg": "117.5",
+      "participaciones": 11,
+      "porcentaje": 0.1
+    },
+    {
+      "WeightClassKg": "120",
+      "participaciones": 78,
+      "porcentaje": 0.68
+    },
+    {
+      "WeightClassKg": "124.7",
+      "participaciones": 31,
+      "porcentaje": 0.27
+    },
+    {
+      "WeightClassKg": "125",
+      "participaciones": 460,
+      "porcentaje": 4.02
+    },
+    {
+      "WeightClassKg": "139.7",
+      "participaciones": 13,
+      "porcentaje": 0.11
+    },
+    {
+      "WeightClassKg": "140",
+      "participaciones": 219,
+      "porcentaje": 1.92
+    },
+    {
+      "WeightClassKg": "67.5+",
+      "participaciones": 1,
+      "porcentaje": 0.01
+    },
+    {
+      "WeightClassKg": "75+",
+      "participaciones": 1,
+      "porcentaje": 0.01
+    },
+    {
+      "WeightClassKg": "82.5+",
+      "participaciones": 2,
+      "porcentaje": 0.02
+    },
+    {
+      "WeightClassKg": "84+",
+      "participaciones": 29,
+      "porcentaje": 0.25
+    },
+    {
+      "WeightClassKg": "85+",
+      "participaciones": 1,
+      "porcentaje": 0.01
+    },
+    {
+      "WeightClassKg": "90+",
+      "participaciones": 77,
+      "porcentaje": 0.67
+    },
+    {
+      "WeightClassKg": "100+",
+      "participaciones": 2,
+      "porcentaje": 0.02
+    },
+    {
+      "WeightClassKg": "107.9+",
+      "participaciones": 1,
+      "porcentaje": 0.01
+    },
+    {
+      "WeightClassKg": "110+",
+      "participaciones": 7,
+      "porcentaje": 0.06
+    },
+    {
+      "WeightClassKg": "120+",
+      "participaciones": 36,
+      "porcentaje": 0.31
+    },
+    {
+      "WeightClassKg": "124.7+",
+      "participaciones": 8,
+      "porcentaje": 0.07
+    },
+    {
+      "WeightClassKg": "125+",
+      "participaciones": 46,
+      "porcentaje": 0.4
+    },
+    {
+      "WeightClassKg": "139.7+",
+      "participaciones": 16,
+      "porcentaje": 0.14
+    },
+    {
+      "WeightClassKg": "140+",
+      "participaciones": 83,
+      "porcentaje": 0.73
+    }
+  ],
+  "q7b_edad": [
+    {
+      "estado_edad": "Edad conocida",
+      "participaciones": 10180,
+      "porcentaje": 88.41
+    },
+    {
+      "estado_edad": "Sin información etaria",
+      "participaciones": 1139,
+      "porcentaje": 9.89
+    },
+    {
+      "estado_edad": "Solo AgeClass disponible",
+      "participaciones": 195,
+      "porcentaje": 1.69
+    }
+  ],
+  "q8b_ambito": [
+    {
+      "ambito_competencia": "Nacional",
+      "participaciones": 9630,
+      "porcentaje": 83.64
+    },
+    {
+      "ambito_competencia": "Internacional",
+      "participaciones": 1884,
+      "porcentaje": 16.36
+    }
+  ],
+  "q9b_place": [
+    {
+      "Place": "1",
+      "participaciones": 7237,
+      "porcentaje": 62.85
+    },
+    {
+      "Place": "2",
+      "participaciones": 1715,
+      "porcentaje": 14.89
+    },
+    {
+      "Place": "3",
+      "participaciones": 779,
+      "porcentaje": 6.77
+    },
+    {
+      "Place": "DQ",
+      "participaciones": 471,
+      "porcentaje": 4.09
+    },
+    {
+      "Place": "4",
+      "participaciones": 374,
+      "porcentaje": 3.25
+    },
+    {
+      "Place": "5",
+      "participaciones": 252,
+      "porcentaje": 2.19
+    },
+    {
+      "Place": "6",
+      "participaciones": 156,
+      "porcentaje": 1.35
+    },
+    {
+      "Place": "7",
+      "participaciones": 116,
+      "porcentaje": 1.01
+    },
+    {
+      "Place": "NS",
+      "participaciones": 88,
+      "porcentaje": 0.76
+    },
+    {
+      "Place": "8",
+      "participaciones": 76,
+      "porcentaje": 0.66
+    },
+    {
+      "Place": "9",
+      "participaciones": 68,
+      "porcentaje": 0.59
+    },
+    {
+      "Place": "10",
+      "participaciones": 42,
+      "porcentaje": 0.36
+    },
+    {
+      "Place": "11",
+      "participaciones": 36,
+      "porcentaje": 0.31
+    },
+    {
+      "Place": "12",
+      "participaciones": 33,
+      "porcentaje": 0.29
+    },
+    {
+      "Place": "13",
+      "participaciones": 20,
+      "porcentaje": 0.17
+    },
+    {
+      "Place": "14",
+      "participaciones": 11,
+      "porcentaje": 0.1
+    },
+    {
+      "Place": "16",
+      "participaciones": 9,
+      "porcentaje": 0.08
+    },
+    {
+      "Place": "G",
+      "participaciones": 6,
+      "porcentaje": 0.05
+    },
+    {
+      "Place": "20",
+      "participaciones": 5,
+      "porcentaje": 0.04
+    },
+    {
+      "Place": "15",
+      "participaciones": 5,
+      "porcentaje": 0.04
+    },
+    {
+      "Place": "17",
+      "participaciones": 4,
+      "porcentaje": 0.03
+    },
+    {
+      "Place": "18",
+      "participaciones": 3,
+      "porcentaje": 0.03
+    },
+    {
+      "Place": "DD",
+      "participaciones": 2,
+      "porcentaje": 0.02
+    },
+    {
+      "Place": "19",
+      "participaciones": 2,
+      "porcentaje": 0.02
+    },
+    {
+      "Place": "22",
+      "participaciones": 1,
+      "porcentaje": 0.01
+    },
+    {
+      "Place": "26",
+      "participaciones": 1,
+      "porcentaje": 0.01
+    },
+    {
+      "Place": "24",
+      "participaciones": 1,
+      "porcentaje": 0.01
+    },
+    {
+      "Place": "21",
+      "participaciones": 1,
+      "porcentaje": 0.01
+    }
+  ],
+  "q10a_total": [
+    {
+      "estado_total": "Total reportado",
+      "participaciones": 10953,
+      "porcentaje": 95.13
+    },
+    {
+      "estado_total": "Total no reportado",
+      "participaciones": 561,
+      "porcentaje": 4.87
+    }
+  ]
+}
