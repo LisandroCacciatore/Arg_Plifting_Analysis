@@ -157,7 +157,7 @@ página completa atrapó el más grave.
 
 ```
 npm test
-  → node --test "tests/frontend/*.test.mjs"   : 18 pass, 0 fail
+  → node --test "tests/frontend/*.test.mjs"   : 20 pass, 0 fail
   → pytest tests/ -q                          : 31 pass
   → EXIT_CODE_REAL=0
 ```
@@ -172,6 +172,29 @@ Acceso a BigQuery comprobado con evidencia cruda:
 
 Los valores de `data.json` coinciden exactamente con BigQuery en las 7 claves
 comparables (Q1, Q2, Q3, Q4a, Q4b, Q6a, Q7b).
+
+### 4.1 Afirmaciones publicadas: qué se pudo verificar
+
+Un caso de estudio sobre integridad de datos no puede tener afirmaciones falsas en
+su propia página. Se auditaron una por una:
+
+| Afirmación de la página | Estado |
+|---|---|
+| "EXPOSICIÓN → GitHub Pages · Portfolio público" | ✅ verificado: `lisandrocacciatore.github.io/Arg_Plifting_Analysis/` responde HTTP 200 |
+| "El dataset es público" (OpenPowerlifting) | ✅ verificado |
+| "Dataset RAW de ~700 MB" | ❌ **corregido a 810 MB** (3.658.065 filas, medido con `__TABLES__`) |
+| "10 queries" | ❌ **corregido a 11 queries / 10 preguntas** (el archivo tiene 16 statements, 11 marcados con `@data-key`) |
+| "decisión D-07" (referencia en `data/01_Raw/README.md`) | ✅ definida en `06_Diagramas_y_Decisiones.md` |
+| "Cloud Storage como respaldo del crudo" · "GCS es la única fuente de verdad" | ⚠️ **NO VERIFICADO** — el service account no tiene `storage.buckets.list`, así que no se pudo comprobar que el bucket exista |
+
+Las dos afirmaciones numéricas se corrigieron con el valor medido. La de GCS queda
+pendiente de confirmación: si el bucket no existe, la arquitectura documentada
+describe un paso que nunca ocurrió.
+
+**Lección:** las afirmaciones cuantitativas envejecen en silencio. La página citaba
+el tamaño del CSV en vez del de la tabla que realmente se consulta, y subestimaba la
+cantidad de queries. Un número sin fuente se convierte en un número falso — que es
+exactamente el problema que este proyecto dice denunciar.
 
 ---
 
@@ -198,7 +221,7 @@ solo lectura y no tiene permiso de borrado, a propósito.
 | # | Pendiente | Prioridad |
 |---|---|---|
 | 1 | ~~Ejecutar `scripts/drop_legacy_views.sql`~~ **hecho 2026-10-02** — el dataset quedó con `OpenDataRaw` únicamente | ✅ |
-| 2 | Arreglar la animación del contador de KPIs (separador de miles `es-AR`) | Baja |
+| 2 | ~~Arreglar la animación del contador de KPIs~~ **hecho 2026-10-02** — el contador recibía el string formateado y confundía el separador de miles con un decimal | ✅ |
 | 3 | Registrar fecha y versión del volcado crudo usado en cada carga (ya figuraba como pendiente en `data/01_Raw/README.md`) | Media |
 | 4 | Decidir si el pipeline corre programado (cronjob) o solo a demanda | Baja |
 | 5 | Build step y linting del frontend (Vite + ESLint/Stylelint) | Baja |

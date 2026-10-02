@@ -91,7 +91,7 @@ def test_los_kpi_tienen_valor_numerico():
         m = re.search(rf'id="{kpi}"[^>]*>([^<]*)<', html)
         assert m, f"no se encontró el contenido de #{kpi}"
         valor = m.group(1).strip()
-        assert re.fullmatch(r"[\d.]+", valor), (
+        assert re.fullmatch(r"[\d.,]+", valor), (
             f"#{kpi} tiene '{valor}' en el HTML; debe ser un número")
 
 

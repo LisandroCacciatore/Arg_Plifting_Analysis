@@ -157,7 +157,28 @@ test('los KPIs se llenaron con datos reales', () => {
     Number(datos.q1_volumen.atletas_unicos).toLocaleString('es-AR'));
   assert.equal(nodos.kpiParticipaciones?.textContent,
     Number(datos.q1_volumen.participaciones_totales).toLocaleString('es-AR'));
-  assert.ok(nodos.kpiPromedio?.textContent);
+  assert.equal(nodos.kpiPromedio?.textContent,
+    Number(datos.q1_volumen.participaciones_promedio_por_atleta).toLocaleString('es-AR', {
+      minimumFractionDigits: 2, maximumFractionDigits: 2,
+    }));
+});
+
+test('el contador de KPIs realmente anima', () => {
+  // El bug: el contador decidía si un valor era decimal mirando si el string
+  // formateado contenía un punto. En es-AR el separador de MILES es el punto,
+  // así que formatNum(2521) = "2.521" se interpretaba como decimal y el contador
+  // salía por el camino corto. Cero frames de animación.
+  assert.ok(pag.rafCalls() >= 3,
+    `solo se pidieron ${pag.rafCalls()} frames; el contador no está animando`);
+});
+
+test('el formato de números respeta las convenciones de es-AR', () => {
+  const f = pag.sandbox.formatearNumero;
+  assert.equal(f(2521, 0), '2.521', 'miles con punto');
+  assert.equal(f(11514, 0), '11.514', 'miles con punto');
+  assert.equal(f(4.57, 2), '4,57', 'decimales con coma');
+  assert.equal(f(0, 0), '0');
+  assert.equal(f(0, 2), '0,00');
 });
 
 test('la fecha de actualización viene de data.json', () => {

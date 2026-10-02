@@ -59,28 +59,30 @@ document.addEventListener('DOMContentLoaded', async () => {
 // =============================================================================
 function renderizarKPIs(q1) {
     if (!q1) return;
-    setKPI('kpiAtletas', formatNum(q1.atletas_unicos));
-    setKPI('kpiParticipaciones', formatNum(q1.participaciones_totales));
-    setKPI('kpiPromedio', q1.participaciones_promedio_por_atleta.toFixed(2));
+    setKPI('kpiAtletas', q1.atletas_unicos, 0);
+    setKPI('kpiParticipaciones', q1.participaciones_totales, 0);
+    setKPI('kpiPromedio', q1.participaciones_promedio_por_atleta, 2);
 }
 
-function setKPI(id, valor) {
+function setKPI(id, numero, decimales = 0) {
     const el = document.getElementById(id);
-    if (el) animarContador(el, valor);
+    if (el) animarContador(el, numero, decimales);
 }
 
-function animarContador(el, valorFinal) {
-    const esDecimal = valorFinal.toString().includes('.');
-    if (esDecimal) { el.textContent = valorFinal; return; }
-
-    const numFinal = parseInt(valorFinal.replace(/\D/g, ''), 10);
+// El contador recibe un NÚMERO y cuántos decimales mostrar, nunca un string ya
+// formateado. Antes decidía si el valor era decimal mirando si el string
+// contenía un punto — pero en es-AR el separador de MILES es el punto, así que
+// 2521 formateado como "2.521" se leía como decimal y el contador salía por el
+// camino corto: nunca animaba. El formato se aplica en el último paso, no antes.
+function animarContador(el, numero, decimales = 0) {
+    const destino = Number(numero) || 0;
     const duracion = 1200;
     const inicio = performance.now();
 
     const tick = (ahora) => {
         const progreso = Math.min((ahora - inicio) / duracion, 1);
         const eased = 1 - Math.pow(1 - progreso, 3);
-        el.textContent = formatNum(Math.floor(eased * numFinal));
+        el.textContent = formatearNumero(eased * destino, decimales);
         if (progreso < 1) requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
@@ -384,8 +386,14 @@ function renderTemporalMetrica(canvasId, filas, campo, etiqueta, color) {
 // =============================================================================
 // Utilidades
 // =============================================================================
-function formatNum(n) {
-    return Number(n).toLocaleString('es-AR');
+// Formato numérico con las convenciones de es-AR: miles con punto, decimales
+// con coma. Se usa una sola función para que un número y su formato no se
+// mezclen (el bug del contador venía de confundir ambos).
+function formatearNumero(n, decimales = 0) {
+    return Number(n).toLocaleString('es-AR', {
+        minimumFractionDigits: decimales,
+        maximumFractionDigits: decimales,
+    });
 }
 
 

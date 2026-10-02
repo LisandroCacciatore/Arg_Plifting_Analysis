@@ -39,6 +39,7 @@ export async function ejecutarPagina() {
   const errores = [];
   const avisos = [];
   let onDomReady = null;
+  let rafCalls = 0;   // frames de animación pedidos (0 = no animó nada)
 
   class ChartStub {
     static defaults = { color: null, font: {} };
@@ -110,7 +111,11 @@ export async function ejecutarPagina() {
     window: { addEventListener() {}, scrollY: 0 },
     Chart: ChartStub,
     performance: { now: () => 0 },
-    requestAnimationFrame: (fn) => fn(1e9),
+    // Un solo tick con timestamp final: el contador animado llega a su valor en
+    // un paso y no se recursiona. Pero se CUENTA cuántas veces se pidió frame:
+    // si el contador sale por el camino corto (bug del separador de miles),
+    // rafCalls queda en 0 y el test lo detecta.
+    requestAnimationFrame: (fn) => { rafCalls++; return fn(1e9); },
     IntersectionObserver: class {
       constructor(cb) { this.cb = cb; }
       observe() { this.cb([{ isIntersecting: true }], this); }
@@ -136,7 +141,11 @@ export async function ejecutarPagina() {
   }
 
   return {
-    graficos, nodos, datos, errores, avisos, botones,
+    graficos, nodos, datos, errores, avisos, botones, inline, html,
+    rafCalls: () => rafCalls,
+    // Las funciones declaradas con `function` en un script clásico quedan como
+    // globales del contexto; se exponen para poder testearlas directamente.
+    sandbox,
     // Lookup SIEMPRE actual: al filtrar, los gráficos se destruyen y se
     // recrean, así que un Map capturado al inicio quedaría obsoleto.
     chart: (id) => graficos.find((g) => g.canvasId === id) || null,

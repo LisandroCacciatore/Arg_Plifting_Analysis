@@ -828,7 +828,7 @@
             <div class="arch-flow">
                 <div class="arch-node"><span class="arch-badge">FUENTE</span><span class="arch-icon">📦</span>
                     <h4>OpenPowerlifting</h4>
-                    <p>Dataset publico<br>CSV ~700 MB</p>
+                    <p>Dataset publico<br>3,66 M de filas</p>
                 </div>
                 <div class="arch-arrow"><i class="fa-solid fa-arrow-right"></i></div>
                 <div class="arch-node"><span class="arch-badge">RAW</span><span class="arch-icon">☁️</span>
@@ -875,14 +875,14 @@
             <div class="section-header">
                 <h2>Capa 01 &mdash; Analisis Descriptivo Base</h2>
                 <div class="divider"></div>
-                <p>10 queries que responden preguntas de volumen, participacion y demografia del Powerlifting
+                <p>11 queries que responden 10 preguntas sobre volumen, participacion y demografia del Powerlifting
                     argentino.<br>El foco esta en <strong>como se construye la pregunta</strong>, no solo en el numero
                     que devuelve.</p>
             </div>
             <div class="looker-pending-banner">
                 <i class="fa-solid fa-circle-info"></i>
                 <div><strong>Dashboard generado desde BigQuery</strong> &mdash; Capa 01 descriptiva sobre el dataset
-                    RAW (~700 MB &middot; fuente: <a href="https://www.openpowerlifting.org"
+                    RAW (810 MB &middot; 3,66 M de filas &middot; fuente: <a href="https://www.openpowerlifting.org"
                         target="_blank">OpenPowerlifting</a>). Los valores se regeneran con
                     <code>scripts/refresh_data.py</code>. Ultima actualizacion:
                     <strong><span id="dataFecha">&mdash;</span></strong></div>
@@ -900,7 +900,7 @@
                     <div class="kpi-sub">Q1 &mdash; WHERE Country = 'Argentina'</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-value" id="kpiPromedio">4.57</div>
+                    <div class="kpi-value" id="kpiPromedio">4,57</div>
                     <div class="kpi-label">Participaciones / atleta</div>
                     <div class="kpi-sub">Q1 &mdash; Promedio calculado</div>
                 </div>
@@ -988,8 +988,8 @@
                 style="margin-top:2rem; border-radius:12px; border:1px solid rgba(255,255,255,0.07);">
                 <p><i class="fa-solid fa-circle-info"></i> <strong>Nota metodologica:</strong> este dashboard no busca
                     mostrar quien es mejor. Busca mostrar <em>como se hace una pregunta analitica bien formada</em>
-                    sobre datos deportivos reales. Dataset RAW de ~700 MB en GCS &middot; procesado por capas en
-                    BigQuery &middot; queries versionadas en el repositorio.</p>
+                    sobre datos deportivos reales. Dataset RAW de 810 MB (3,66 M de filas) en BigQuery &middot;
+                    procesado por capas &middot; queries versionadas en el repositorio.</p>
             </div>
         </div>
     </section>
