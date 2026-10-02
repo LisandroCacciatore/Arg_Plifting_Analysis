@@ -225,7 +225,11 @@ solo lectura y no tiene permiso de borrado, a propósito.
 | 3 | Registrar fecha y versión del volcado crudo usado en cada carga (ya figuraba como pendiente en `data/01_Raw/README.md`) | Media |
 | 4 | Decidir si el pipeline corre programado (cronjob) o solo a demanda | Baja |
 | 5 | Build step y linting del frontend (Vite + ESLint/Stylelint) | Baja |
-| 6 | CI en GitHub Actions corriendo `npm test` | Media |
+| 6 | ~~CI en GitHub Actions~~ **hecho 2026-10-02** — `.github/workflows/ci.yml` corre los 54 tests, el contrato de `data.json` y los marcadores del SQL en cada push y PR, sin credenciales | ✅ |
+| 7 | ~~LICENSE~~ **hecho** — MIT. La página declaraba "open-source" sin licencia | ✅ |
+| 8 | ~~Escribir el caso de estudio~~ **hecho** — `docs/CASO-DE-ESTUDIO.md` | ✅ |
+| 9 | Confirmar si existe el bucket de Cloud Storage (no verificable: el SA no tiene `storage.buckets.list` ni `bigquery.jobs.listAll`) | Media |
+| 10 | Decidir qué hacer con `getDatosMuestra()` en `app.js`: es el último resto de datos de muestra en el código | Baja |
 
 ---
 

@@ -122,6 +122,9 @@ def datos_validos():
             "participaciones_promedio_por_atleta": 4.57,
         },
         "q2_sexo": [{"Sex": "M", "porcentaje": 77.6}],
+        # listas renderizadas por función dedicada (antes no se validaban)
+        "q3_federaciones": [{"Federation": "AAP", "porcentaje": 26.33, "atletas_unicos": 838}],
+        "q7b_edad": [{"estado_edad": "Edad conocida", "porcentaje": 88.41}],
         "q4a_eventos": [{"Event": "SBD", "porcentaje": 64.9}],
         "q4b_equipamiento": [{"Equipment": "Raw", "porcentaje": 48.3}],
         "q8b_ambito": [{"ambito_competencia": "Nacional", "porcentaje": 83.6}],
@@ -186,6 +189,31 @@ def test_metricas_temporales_se_derivan_de_app_js():
     metricas = rd.metricas_temporales_esperadas(rd._leer_app_js())
     assert metricas == ["atletas_unicos", "federaciones_activas", "participaciones"], (
         f"columnas detectadas: {metricas}")
+
+
+def test_contrato_detecta_lista_simple_faltante(datos_validos):
+    """El hueco que se cerró: q3_federaciones se usaba pero nadie lo validaba.
+
+    Si esa clave desaparecía de data.json, la lista de federaciones salía vacía
+    y ningún check se quejaba.
+    """
+    del datos_validos["q3_federaciones"]
+    problemas = rd.validar_contrato(datos_validos, rd._leer_app_js())
+    assert any("q3_federaciones" in p for p in problemas), (
+        "el validador debería exigir las listas que renderizan funciones dedicadas")
+
+
+def test_contrato_detecta_campo_faltante_en_lista_simple(datos_validos):
+    del datos_validos["q7b_edad"][0]["estado_edad"]
+    problemas = rd.validar_contrato(datos_validos, rd._leer_app_js())
+    assert any("estado_edad" in p for p in problemas)
+
+
+def test_renderizadores_simples_se_derivan_de_app_js():
+    detectados = dict(rd.renderizadores_simples(rd._leer_app_js()))
+    assert set(detectados) == {"q3_federaciones", "q7b_edad"}, detectados
+    assert "Federation" in detectados["q3_federaciones"]
+    assert "estado_edad" in detectados["q7b_edad"]
 
 
 # ── _meta ────────────────────────────────────────────────────────────────────

@@ -1,0 +1,72 @@
+name: CI
+
+# Los checks que la página del proyecto declara: "ningún análisis avanza sin
+# superar los checks". Acá se ejecutan de verdad, en cada push y PR.
+#
+# No usa `npm test` a propósito: ese script apunta al python del venv con ruta de
+# Windows (.venv\Scripts\python.exe). En un runner Linux los comandos van
+# directo, que es más explícito y no depende de cómo se armó el entorno local.
+#
+# Ningún paso necesita credenciales de Google Cloud: validan lógica, contrato y
+# estructura. El refresh real contra BigQuery se corre a mano (ver CONTRIBUTING).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Tests y contrato de datos
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar pytest
+        run: python -m pip install --upgrade pip pytest
+
+      # Ejecuta index.html como el navegador, con un stub de Chart.js que
+      # reproduce su restricción real: no se puede crear un segundo gráfico
+      # sobre el mismo canvas. Verifica que los gráficos tengan datos reales.
+      - name: Tests del dashboard
+        run: node --test "tests/frontend/*.test.mjs"
+
+      - name: Tests del pipeline
+        run: python -m pytest tests/ -q
+
+      # Valida que data.json tenga las claves y campos que app.js lee.
+      # Si esto falla, hay un gráfico o un KPI que no se va a llenar.
+      - name: Contrato de data.json
+        run: python scripts/refresh_data.py --check
+
+      # Cada query exportable debe declarar su @data-key, sin duplicados, y
+      # cubrir todo lo que el frontend consume.
+      - name: Marcadores del SQL
+        run: python scripts/check_sql_keys.py
+
+      - name: Resumen
+        if: always()
+        run: |
+          {
+            echo "### Checks ejecutados"
+            echo ""
+            echo "| Check | Qué prueba |"
+            echo "|---|---|"
+            echo "| Dashboard | ejecuta \`index.html\` en un sandbox con Chart.js stubbeado: 10 gráficos con datos reales, filtro temporal, KPIs |"
+            echo "| Pipeline | parseo del SQL, formas de datos y contrato con el frontend |"
+            echo "| Contrato de \`data.json\` | que existan las claves y campos que lee \`app.js\` |"
+            echo "| Marcadores del SQL | \`@data-key\` sin duplicados, cubriendo lo que consume el frontend |"
+          } >> "$GITHUB_STEP_SUMMARY"

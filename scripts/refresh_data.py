@@ -149,6 +149,33 @@ def kpis_esperados(app_js: str) -> tuple[str | None, list[str]]:
     return m.group(1), sorted(set(re.findall(r"\bq1\.(\w+)", app_js)))
 
 
+# Funciones que renderizan una lista completa con un loop propio. Cada una lee
+# data.<clave> y accede a los campos vía su parámetro interno.
+RENDERIZADORES_SIMPLES = (
+    ("renderizarFederaciones", "f"),
+    ("renderizarEdad", "d"),
+)
+
+
+def renderizadores_simples(app_js: str) -> list[tuple[str, list[str]]]:
+    """[(clave, [campos])] de las listas renderizadas por función dedicada.
+
+    Sin esto, `q3_federaciones` y `q7b_edad` se veían como "no usadas": si
+    desaparecían de data.json la lista salía vacía y ningún check se quejaba.
+    """
+    salida: list[tuple[str, list[str]]] = []
+    for fn, param in RENDERIZADORES_SIMPLES:
+        m = re.search(rf"{fn}\(data\.(\w+)\)", app_js)
+        if not m:
+            continue
+        # escanear sólo el cuerpo de la función, para no capturar otros usos
+        cuerpo = re.search(rf"function {fn}\([^)]*\)\s*\{{(.*?)\n\}}", app_js, re.S)
+        campos = sorted(set(re.findall(rf"\b{param}\.(\w+)", cuerpo.group(1)))) \
+            if cuerpo else []
+        salida.append((m.group(1), campos))
+    return salida
+
+
 def validar_contrato(datos: dict, app_js: str) -> list[str]:
     problemas: list[str] = []
 
@@ -186,6 +213,20 @@ def validar_contrato(datos: dict, app_js: str) -> list[str]:
                     f"#{canvas}: data.{clave} no tiene el campo '{campo}' "
                     f"(campos: {list(filas[0].keys())})"
                 )
+
+    # Listas renderizadas por función dedicada (federaciones, edad)
+    for clave, campos in renderizadores_simples(app_js):
+        if clave not in datos:
+            problemas.append(f"lista: falta data.{clave}")
+            continue
+        if not isinstance(datos[clave], list) or not datos[clave]:
+            problemas.append(f"lista: data.{clave} no es una lista con datos")
+            continue
+        for campo in campos:
+            if campo not in datos[clave][0]:
+                problemas.append(
+                    f"lista: data.{clave} no tiene el campo '{campo}' "
+                    f"(campos: {list(datos[clave][0].keys())})")
 
     for clave in temporales_esperados(app_js):
         if clave not in datos:

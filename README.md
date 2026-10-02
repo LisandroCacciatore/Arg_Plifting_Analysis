@@ -1,5 +1,8 @@
 ## Análisis de datos aplicado al deporte
 
+[![CI](https://github.com/LisandroCacciatore/Arg_Plifting_Analysis/actions/workflows/ci.yml/badge.svg)](https://github.com/LisandroCacciatore/Arg_Plifting_Analysis/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 _De la práctica en el gimnasio a la toma de decisiones con datos_
 
 Este proyecto nace de una historia real.
