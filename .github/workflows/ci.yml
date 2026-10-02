@@ -61,6 +61,12 @@ jobs:
       - name: Marcadores del SQL
         run: python scripts/check_sql_keys.py
 
+      # El libreto documenta el copy del sitio. Sin este check serian dos
+      # fuentes de verdad del mismo texto: la pagina por un lado, el libreto
+      # por otro, y se desincronizan en silencio.
+      - name: El libreto coincide con la pagina
+        run: python scripts/check_libreto.py
+
       - name: Resumen
         if: always()
         run: |
@@ -73,4 +79,5 @@ jobs:
             echo "| Pipeline | parseo del SQL, formas de datos y contrato con el frontend |"
             echo "| Contrato de \`data.json\` | que existan las claves y campos que lee \`app.js\` |"
             echo "| Marcadores del SQL | \`@data-key\` sin duplicados, cubriendo lo que consume el frontend |"
+            echo "| Libreto vs pagina | cada bloque de copy del libreto aparece en \`index.html\`, en orden |"
           } >> "$GITHUB_STEP_SUMMARY"

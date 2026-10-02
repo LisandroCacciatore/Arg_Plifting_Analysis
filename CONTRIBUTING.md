@@ -53,6 +53,7 @@ Configuración opcional por entorno: `BQ_PROJECT`, `BQ_DATASET`, `BQ_TABLE`, `BQ
 | Ver qué haría sin escribir | `python scripts/refresh_data.py --dry-run` |
 | Validar `data.json` sin red | `python scripts/refresh_data.py --check` |
 | Verificar que Pages sirve el último commit | `npm run verify:deploy` |
+| Verificar que el libreto coincide con la página | `npm run check:libreto` |
 | Ver el dashboard | `python -m http.server 8899 --bind 127.0.0.1` |
 
 ## Convenciones de copy
@@ -73,6 +74,29 @@ usa emoji como iconos. Solo las letras acentuadas.
 
 La prosa del resto del repo (README, `docs/*.md`, CONTRIBUTING) **si** usa tildes
 correctas: son documentos, no la pagina.
+
+## El copy del sitio y su libreto
+
+El copy de `index.html` tambien vive en [`docs/LIBRETO-PAGINA.md`](docs/LIBRETO-PAGINA.md): el
+mismo texto en orden, sin markup, con las decisiones y el porque de cada cambio.
+
+Un check lo mantiene alineado:
+
+```bash
+python scripts/check_libreto.py            # verifica
+python scripts/check_libreto.py --listar   # muestra los bloques que verifica
+```
+
+Cada linea que empieza con `> ` en el libreto es un bloque de copy. El check extrae el texto
+visible de la pagina y comprueba dos cosas: que cada bloque aparezca, y que aparezca en el
+mismo orden relativo. El orden importa: sin eso, mover un parrafo de lugar pasaria
+desapercibido.
+
+**Si vas a cambiar el copy, cambia los dos.** Si el check falla hay dos causas posibles y las
+dos son validas: cambiaste la pagina y no el libreto, o al reves. El mensaje dice cual bloque
+no coincide.
+
+Los bloques `(sin cambios)` y las notas no se verifican: no son copy.
 
 ## Cómo agregar una query
 

@@ -693,9 +693,10 @@
         <div class="container hero-content">
             <div class="hero-text">
                 <div class="badge">Sport Performance Data Architecture</div>
-                <h1>Cuando el QA Shift-Left se aplica al <span class="accent-gradient">dato deportivo</span></h1>
+                <h1>Empezo en un salon de pilates. Termino en <span class="accent-gradient">BigQuery</span>.</h1>
                 <p class="subtitle">Licenciado en Educacion Fisica. Tester de profesion. Analista de datos por
-                    conviccion.<br>Este proyecto existe porque las tres cosas tienen mas en comun de lo que parece.</p>
+                    conviccion.<br>Cuatro amigos, dos kettlebells y una pregunta que no me dejaba en paz:
+                    <strong>como se que esto esta funcionando?</strong> No como sensacion. Como dato.</p>
                 <div class="hero-cta">
                     <a href="#dashboards" class="btn-primary">Ver el analisis <i
                             class="fa-solid fa-arrow-right"></i></a>
@@ -707,15 +708,23 @@
                 <div class="glass-card abstract-stat">
                     <div class="stat-icon"><i class="fa-solid fa-vial-circle-check"></i></div>
                     <div class="stat-info">
-                        <h3>QA Shift-Left aplicado al dato</h3>
-                        <p>Validar antes de analizar, siempre</p>
+                        <h3>Cada numero tiene su query</h3>
+                        <p>11 queries versionadas en el repositorio. Ningun numero de la pagina esta escrito a mano.</p>
                     </div>
                 </div>
                 <div class="glass-card abstract-stat delayed">
                     <div class="stat-icon"><i class="fa-solid fa-dumbbell"></i></div>
                     <div class="stat-info">
-                        <h3>Dominio deportivo real</h3>
-                        <p>El contexto que el dato no dice solo</p>
+                        <h3>Un solo dataset, sin tocar</h3>
+                        <p>3,66 M de filas crudas. Sin limpiezas silenciosas, sin columnas derivadas, sin reglas de
+                            negocio.</p>
+                    </div>
+                </div>
+                <div class="glass-card abstract-stat delayed-2">
+                    <div class="stat-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div class="stat-info">
+                        <h3>Si el dato no carga, no se muestra nada</h3>
+                        <p>Sin datos reales no hay dashboard. Este proyecto no usa valores de reemplazo.</p>
                     </div>
                 </div>
             </div>
@@ -731,18 +740,20 @@
             </div>
             <div class="story-block">
                 <div class="story-text">
-                    <h3>Empezo en un salon de pilates. Termino en BigQuery.</h3>
-                    <p>Cuatro amigos, dos kettlebells, y una pregunta que no me dejaba en paz: <strong>como se que esto
-                            esta funcionando?</strong> No como sensacion. Como dato.</p>
                     <p>Anos de trabajo en QA me ensenaron algo que el deporte confirma todo el tiempo: <strong>un
-                            resultado sin contexto no vale nada.</strong> Un atleta que levanta 300 kg puede ser
-                        extraordinario o promedio, dependiendo de su categoria, federacion y modalidad. Exactamente
-                        igual que un bug count sin cobertura de testing: un numero que miente.</p>
-                    <p>Entonces arme esto. No como ejercicio academico. Como demostracion de que la mentalidad
-                        Shift-Left, <strong>validar antes de analizar, documentar antes de concluir</strong>, funciona
-                        igual de bien en un pipeline de datos que en un sprint de software.</p>
-                    <p>El dataset es publico. La arquitectura es Cloud. Las decisiones estan todas documentadas. Nada se
-                        implementa si no esta pensado primero.</p>
+                            resultado sin contexto no vale nada.</strong></p>
+                    <p>Estaba esperando el 112 con Pavlov Sharoslav. Volviendo de entrenar.</p>
+                    <p>Le decia que un atleta que levanta 300 kilos puede ser extraordinario o promedio. Depende de la
+                        categoria, la federacion, si fue raw o equipado.</p>
+                    <p>"Y eso que tiene que ver con el software?" me pregunto.</p>
+                    <p>"Que es lo mismo. Un bug count sin cobertura es un numero que suena a algo pero no dice nada."</p>
+                    <p>El bondi no venia.</p>
+                    <p>Ese dia entendi que el problema no era el numero. Era la falta de contexto para leerlo.</p>
+                    <p>Unos meses despues arme este proyecto. La pregunta era como se que esto esta funcionando. No como
+                        sensacion. Como dato.</p>
+                    <p>La respuesta no fue la que esperaba. <strong>Los siete graficos del dashboard mostraban datos de
+                            ejemplo</strong>, y nadie lo notaba porque el error estaba en los canvas, donde no se lee.
+                        <a href="docs/CASO-DE-ESTUDIO.md">El caso de estudio completo esta en el repositorio</a>.</p>
                 </div>
                 <div class="skills-sidebar">
                     <div class="skill-item">
@@ -788,11 +799,11 @@
                 <div class="bridge-side">
                     <h4>Lo que aprendi en QA</h4>
                     <ul>
+                        <li><strong>Un bug sin repro steps no existe</strong></li>
+                        <li><strong>El contexto cambia la severidad</strong></li>
                         <li>Validar esquemas antes de ejecutar</li>
-                        <li>Documentar cada decision de diseno</li>
-                        <li>Un bug sin repro steps no existe</li>
-                        <li>El contexto cambia la severidad</li>
                         <li>Shift-Left: la calidad entra al inicio</li>
+                        <li>Documentar cada decision de diseno</li>
                         <li>Reproducibilidad sobre anecdota</li>
                     </ul>
                 </div>
@@ -803,14 +814,20 @@
                 <div class="bridge-side">
                     <h4>Lo que aplico en datos deportivos</h4>
                     <ul>
+                        <li><strong>Un resultado sin query documentada no existe</strong></li>
+                        <li><strong>El equipamiento cambia el significado del total</strong></li>
                         <li>Validar tipos y rangos antes de analizar</li>
-                        <li>Documentar cada transformacion del dato</li>
-                        <li>Un resultado sin query documentada no existe</li>
-                        <li>El equipamiento cambia el significado del total</li>
                         <li>Testing analitico antes de la visualizacion</li>
+                        <li>Documentar cada transformacion del dato</li>
                         <li>Queries reproducibles, no dashboards anecdoticos</li>
                     </ul>
                 </div>
+            </div>
+            <div class="dashboard-note"
+                style="margin-top:2rem; border-radius:12px; border:1px solid rgba(255,255,255,0.07);">
+                <p><i class="fa-solid fa-circle-info"></i> <strong>Nota metodologica:</strong> este dashboard no busca
+                    mostrar quien es mejor. Busca mostrar <em>como se hace una pregunta analitica bien formada</em>
+                    sobre datos deportivos reales.</p>
             </div>
             <div style="margin-top: 5rem;">
                 <div class="section-header center">
@@ -820,22 +837,25 @@
                     <div class="process-step">
                         <div class="step-number">01</div>
                         <h4>Criterio semantico</h4>
-                        <p>Definir que pregunta se responde y por que. Nada se implementa sin esto.</p>
+                        <p>Que pregunta se responde y por que. Se define antes de tocar el dato.</p>
                     </div>
                     <div class="process-step">
                         <div class="step-number">02</div>
                         <h4>Montaje del dato</h4>
-                        <p>Ingestion a GCS. Carga a BigQuery RAW. Sin modificacion, sin asunciones.</p>
+                        <p>Descarga de OpenPowerlifting a Cloud Storage, carga a BigQuery sin transformar. El crudo se
+                            respalda antes de tocarlo.</p>
                     </div>
                     <div class="process-step">
                         <div class="step-number">03</div>
                         <h4>Testing analitico</h4>
-                        <p>Validacion de esquemas, nulos, rangos e inconsistencias antes de consultar.</p>
+                        <p>Esquemas, nulos, rangos e inconsistencias: 61 tests que corren en cada push. Un validador
+                            impide escribir un data.json incompleto.</p>
                     </div>
                     <div class="process-step">
                         <div class="step-number">04</div>
                         <h4>Consulta y resultado</h4>
-                        <p>Queries documentadas que responden exactamente la pregunta definida en el paso 01.</p>
+                        <p>11 queries versionadas que responden la pregunta del paso 01. El dashboard lee el resultado;
+                            no lo escribe nadie a mano.</p>
                     </div>
                 </div>
             </div>
@@ -848,8 +868,7 @@
             <div class="section-header center">
                 <h2>Arquitectura del sistema</h2>
                 <div class="divider center"></div>
-                <p>Cloud-first desde el dia uno. Cada capa tiene un proposito, un costo controlado y trazabilidad
-                    completa.</p>
+                <p>Cloud-first desde el dia uno. Cada capa tiene un proposito y su costo es controlado.</p>
             </div>
             <div class="arch-flow">
                 <div class="arch-node"><span class="arch-badge">FUENTE</span><span class="arch-icon">📦</span>
@@ -859,12 +878,12 @@
                 <div class="arch-arrow"><i class="fa-solid fa-arrow-right"></i></div>
                 <div class="arch-node"><span class="arch-badge">RAW</span><span class="arch-icon">☁️</span>
                     <h4>Cloud Storage</h4>
-                    <p>Data Lake<br>Sin modificacion</p>
+                    <p>Data Lake. El crudo,<br>sin modificar</p>
                 </div>
                 <div class="arch-arrow"><i class="fa-solid fa-arrow-right"></i></div>
                 <div class="arch-node"><span class="arch-badge">ANALISIS</span><span class="arch-icon">🔍</span>
                     <h4>BigQuery</h4>
-                    <p>Capa 01 Descriptiva<br>Capa 02 Analitica</p>
+                    <p>Capa 01 Descriptiva<br>Capa 02 Analitica (pendiente)</p>
                 </div>
                 <div class="arch-arrow"><i class="fa-solid fa-arrow-right"></i></div>
                 <div class="arch-node"><span class="arch-badge">VISUALIZACION</span><span class="arch-icon">📊</span>
@@ -880,16 +899,15 @@
             <div class="arch-principles">
                 <div class="arch-principle">
                     <h5>Desacoplamiento</h5>
-                    <p>El almacenamiento es independiente del computo. GCS es la unica fuente de verdad.</p>
+                    <p>El almacenamiento es independiente del computo: el bucket guarda el crudo, BigQuery lo consulta.</p>
                 </div>
                 <div class="arch-principle">
                     <h5>Trazabilidad completa</h5>
-                    <p>Cada transformacion esta respaldada por un .sql versionado en el repositorio.</p>
+                    <p>11 queries versionadas: cada numero de la pagina se rastrea hasta la suya.</p>
                 </div>
                 <div class="arch-principle">
                     <h5>QA Shift-Left</h5>
-                    <p>La validacion ocurre antes de la visualizacion. Ningun analisis avanza sin superar los checks.
-                    </p>
+                    <p>La validacion ocurre antes de la visualizacion. Los checks corren en cada push.</p>
                 </div>
             </div>
         </div>
@@ -1026,10 +1044,8 @@
 
             <div class="dashboard-note"
                 style="margin-top:2rem; border-radius:12px; border:1px solid rgba(255,255,255,0.07);">
-                <p><i class="fa-solid fa-circle-info"></i> <strong>Nota metodologica:</strong> este dashboard no busca
-                    mostrar quien es mejor. Busca mostrar <em>como se hace una pregunta analitica bien formada</em>
-                    sobre datos deportivos reales. Dataset RAW de 810 MB (3,66 M de filas) en BigQuery &middot;
-                    procesado por capas &middot; queries versionadas en el repositorio.</p>
+                <p><i class="fa-solid fa-circle-info"></i> Dataset RAW de 810 MB (3,66 M de filas) en BigQuery
+                    &middot; procesado por capas &middot; queries versionadas en el repositorio.</p>
             </div>
         </div>
     </section>
@@ -1044,8 +1060,8 @@
                         class="fa-brands fa-github"></i></a>
             </div>
             <div class="copyright">
-                <p>&copy; 2026 Lisandro Cacciatore &middot; Sport Performance Data Architecture &middot; Open
-                    Powerlifting Dataset</p>
+                <p>&copy; 2026 Lisandro Cacciatore &middot; Sport Performance Data Architecture &middot;
+                    OpenPowerlifting Dataset</p>
             </div>
         </div>
     </footer>

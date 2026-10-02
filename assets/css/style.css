@@ -303,7 +303,7 @@ ul {
 /* Hero Visual & Abstract Stats */
 .hero-visual {
     position: relative;
-    height: 400px;
+    min-height: 400px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -335,6 +335,14 @@ ul {
     margin-right: auto;
     margin-left: 0;
     animation-delay: -3s;
+}
+
+/* Tercera tarjeta: completa el zigzag (derecha, izquierda, derecha) con su
+   propio desfasaje de animacion. */
+.abstract-stat.delayed-2 {
+    width: 75%;
+    margin-left: auto;
+    animation-delay: -1.5s;
 }
 
 .stat-icon {
