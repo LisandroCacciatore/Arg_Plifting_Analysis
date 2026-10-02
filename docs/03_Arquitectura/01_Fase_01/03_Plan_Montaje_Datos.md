@@ -13,6 +13,12 @@ Dataset:   Openpowerlifting
 Tabla:     OpenDataRaw
 ```
 
+Respaldo del volcado original (paso 2 de la secuencia):
+
+```
+Bucket:    gs://powerlifting-data-raw
+```
+
 `OpenDataRaw` es deliberadamente **cruda**: sin reglas de negocio, sin correcciones
 semánticas, sin columnas derivadas.
 

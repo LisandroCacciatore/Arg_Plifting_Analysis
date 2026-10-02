@@ -4,6 +4,7 @@ Los datos crudos **no se versionan en el repositorio**. Viven en Google Cloud:
 
 | Nivel | Dónde vive | Qué contiene |
 |---|---|---|
+| Respaldo del crudo | Cloud Storage — `gs://powerlifting-data-raw` (proyecto `burnished-rider-368414`) | El volcado original de OpenPowerlifting, tal como se descargó. Respaldo inmutable. |
 | `01_Raw` | BigQuery — `burnished-rider-368414.Openpowerlifting.OpenDataRaw` | El crudo, tal como lo publica la fuente. Sin reglas de negocio, sin corrección semántica. |
 | Agregados | `assets/data/data.json` (sí versionado) | Lo que la vista web muestra, **generado** por `scripts/refresh_data.py` a partir de las queries de `SQL/phase_2_core/`. |
 

@@ -185,11 +185,15 @@ su propia página. Se auditaron una por una:
 | "Dataset RAW de ~700 MB" | ❌ **corregido a 810 MB** (3.658.065 filas, medido con `__TABLES__`) |
 | "10 queries" | ❌ **corregido a 11 queries / 10 preguntas** (el archivo tiene 16 statements, 11 marcados con `@data-key`) |
 | "decisión D-07" (referencia en `data/01_Raw/README.md`) | ✅ definida en `06_Diagramas_y_Decisiones.md` |
-| "Cloud Storage como respaldo del crudo" · "GCS es la única fuente de verdad" | ⚠️ **NO VERIFICADO** — el service account no tiene `storage.buckets.list`, así que no se pudo comprobar que el bucket exista |
+| "Cloud Storage como respaldo del crudo" · "GCS es la única fuente de verdad" | ✅ verificado: el bucket `powerlifting-data-raw` responde HTTP 401 sin credenciales — existe y es privado (un 404 habría indicado lo contrario) |
 
-Las dos afirmaciones numéricas se corrigieron con el valor medido. La de GCS queda
-pendiente de confirmación: si el bucket no existe, la arquitectura documentada
-describe un paso que nunca ocurrió.
+Las dos afirmaciones numéricas se corrigieron con el valor medido. La de GCS estuvo
+marcada como no verificada mientras solo se intentó por vías autenticadas
+(`storage.buckets.list` y `bigquery.jobs.listAll`, ambas 403). Se resolvió con una
+consulta sin credenciales a la API de Storage: el 401 confirma que el bucket existe.
+
+Nota: el service account **no** puede leer el bucket, y está bien — el pipeline lee de
+BigQuery, no de GCS. El bucket es el respaldo del crudo original.
 
 **Lección:** las afirmaciones cuantitativas envejecen en silencio. La página citaba
 el tamaño del CSV en vez del de la tabla que realmente se consulta, y subestimaba la
@@ -228,7 +232,7 @@ solo lectura y no tiene permiso de borrado, a propósito.
 | 6 | ~~CI en GitHub Actions~~ **hecho 2026-10-02** — `.github/workflows/ci.yml` corre los 54 tests, el contrato de `data.json` y los marcadores del SQL en cada push y PR, sin credenciales | ✅ |
 | 7 | ~~LICENSE~~ **hecho** — MIT. La página declaraba "open-source" sin licencia | ✅ |
 | 8 | ~~Escribir el caso de estudio~~ **hecho** — `docs/CASO-DE-ESTUDIO.md` | ✅ |
-| 9 | Confirmar si existe el bucket de Cloud Storage (no verificable: el SA no tiene `storage.buckets.list` ni `bigquery.jobs.listAll`) | Media |
+| 9 | ~~Confirmar si existe el bucket de Cloud Storage~~ **resuelto** — `powerlifting-data-raw` existe (HTTP 401 sin credenciales) | ✅ |
 | 10 | Decidir qué hacer con `getDatosMuestra()` en `app.js`: es el último resto de datos de muestra en el código | Baja |
 
 ---

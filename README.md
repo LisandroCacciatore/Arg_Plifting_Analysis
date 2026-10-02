@@ -5,6 +5,11 @@
 
 _De la práctica en el gimnasio a la toma de decisiones con datos_
 
+> 📄 **[Caso de estudio: cuando el dashboard mentía](docs/CASO-DE-ESTUDIO.md)** — la
+> auditoría completa del proyecto. El hallazgo central: durante meses el dashboard mostró
+> datos de ejemplo como si fueran reales, y sobrevivió porque la verificación miraba el
+> texto de la página mientras los números falsos estaban dibujados en un `<canvas>`.
+
 Este proyecto nace de una historia real.
 
 Empezó en un salón de pilates,

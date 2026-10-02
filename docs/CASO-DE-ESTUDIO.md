@@ -162,27 +162,45 @@ consulta. Cualquier número de la página se puede rastrear hasta su consulta.
 análisis avanza sin superar los checks. Ahora eso es verificable por cualquiera que
 entre al repositorio.
 
-## 7. Lo que NO pude verificar
+## 7. La afirmación que no pude verificar (y después sí)
 
 Un caso de estudio sobre verificación que esconda sus propios huecos no sirve.
 
 La arquitectura documentada describe el flujo `CSV → Cloud Storage → BigQuery`. Pude
-confirmar todo el trayecto salvo un eslabón: **no pude comprobar que exista el bucket
-de Cloud Storage**. Intenté por dos vías independientes y las dos están bloqueadas:
+confirmar todo el trayecto salvo un eslabón: **no podía comprobar que existiera el bucket
+de Cloud Storage**. Lo intenté por dos vías y las dos estaban bloqueadas:
 
 ```
 storage.buckets.list       → 403 Permission denied
 bigquery.jobs.listAll      → 403 Permission denied
 ```
 
-El service account del pipeline es de solo lectura sobre los datos, y no incluye
-permisos de administración. Me parece la postura correcta para una credencial que vive
-en un archivo en disco — pero significa que ese paso queda **NO VERIFICADO**, no
-"asumido como cierto".
+El service account del pipeline es de solo lectura sobre los datos y no incluye permisos
+de administración — la postura correcta para una credencial que vive en un archivo en
+disco. Pero eso significaba que esa afirmación quedaba **NO VERIFICADA**. Ni verdadera ni
+falsa: no verificada, con el motivo escrito al lado. Así quedó en el reporte.
 
-Si el bucket no existe, la documentación describe un paso que nunca ocurrió. Es
-exactamente el tipo de discrepancia que este proyecto dice denunciar, así que la dejo
-marcada en lugar de taparla.
+Después el dueño del proyecto me pasó la URL del bucket en la consola. Y ahí apareció la
+verificación que no necesitaba ningún permiso: preguntarle a la API si el bucket existe.
+
+```
+GET storage.googleapis.com/storage/v1/b/powerlifting-data-raw
+→ HTTP 401      (un 404 habría significado "no existe")
+```
+
+**401 = existe pero es privado.** El bucket `powerlifting-data-raw` existe, el flujo
+documentado describe algo que pasó de verdad, y la afirmación quedó confirmada sin un
+solo permiso extra.
+
+Lo incómodo es que **ese truco ya lo había usado** al principio del trabajo, para
+confirmar que el proyecto de BigQuery existía (mismo 401). Lo tenía a mano y no se me
+ocurrió aplicarlo al bucket: me quedé en el 403 y anoté "no verificable", que era
+correcto pero incompleto.
+
+La lección no es "verificá todo". Es que **ante un 403 la respuesta no es rendirse: es
+encontrar una vía que no necesite el permiso que falta.** Y que una afirmación sin
+verificar se escribe como no verificada —nunca como verdadera por conveniencia—
+pero tampoco como definitivamente incierta si todavía hay caminos por probar.
 
 ## 8. Lo que me llevo
 
