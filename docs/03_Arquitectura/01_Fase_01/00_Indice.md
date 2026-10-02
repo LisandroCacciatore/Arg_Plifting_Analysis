@@ -10,6 +10,7 @@
 | 04 | [Testing del montaje](04_Testing_Montaje.md) | ¿Qué tiene que cumplir el dato antes de analizarse? |
 | 05 | [Estrategia de queries](05_Query_Strategy_Capa01.md) | ¿Qué preguntas responde la capa y con qué límites? |
 | 06 | [Diagramas y decisiones](06_Diagramas_y_Decisiones.md) | ¿Qué se decidió y qué quedó abierto? |
+| 07 | [Vistas en BigQuery](07_Views_BigQuery.md) | ¿Qué artefactos existen en el dataset además del crudo y por qué no se usan? |
 
 **Regla de la fase:** nada se implementa si no está documentado acá. Las queries de
 `SQL/phase_2_core/` implementan lo que definen los documentos 02 a 05.

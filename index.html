@@ -881,27 +881,26 @@
             </div>
             <div class="looker-pending-banner">
                 <i class="fa-solid fa-circle-info"></i>
-                <div><strong>Dashboard conectado a BigQuery &mdash; datos en proceso de actualizacion.</strong> Las
-                    visualizaciones reflejan la estructura analitica de las queries Capa 01 sobre el dataset RAW (~700
-                    MB &middot; fuente: <a href="https://www.openpowerlifting.org"
-                        target="_blank">OpenPowerlifting</a>).</div>
+                <div><strong>Dashboard generado desde BigQuery</strong> &mdash; Capa 01 descriptiva sobre el dataset
+                    RAW (~700 MB &middot; fuente: <a href="https://www.openpowerlifting.org"
+                        target="_blank">OpenPowerlifting</a>). Los valores se regeneran con
+                    <code>scripts/refresh_data.py</code>. Ultima actualizacion:
+                    <strong><span id="dataFecha">&mdash;</span></strong></div>
             </div>
-            <div class="sample-badge"><i class="fa-solid fa-flask"></i> Datos de muestra &mdash; en proceso de conexion
-                con BigQuery</div>
 
             <div class="kpi-row">
                 <div class="kpi-card">
-                    <div class="kpi-value">3.847</div>
+                    <div class="kpi-value" id="kpiAtletas">2.521</div>
                     <div class="kpi-label">Atletas unicos</div>
                     <div class="kpi-sub">Q1 &mdash; COUNT DISTINCT Name</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-value">11.203</div>
+                    <div class="kpi-value" id="kpiParticipaciones">11.514</div>
                     <div class="kpi-label">Participaciones totales</div>
                     <div class="kpi-sub">Q1 &mdash; WHERE Country = 'Argentina'</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-value">2.91</div>
+                    <div class="kpi-value" id="kpiPromedio">4.57</div>
                     <div class="kpi-label">Participaciones / atleta</div>
                     <div class="kpi-sub">Q1 &mdash; Promedio calculado</div>
                 </div>
@@ -937,8 +936,32 @@
             <div class="chart-grid">
                 <div class="chart-card wide">
                     <h4>Q5 &mdash; Evolucion temporal</h4>
-                    <p class="chart-question">Como crece el ecosistema a lo largo del tiempo?</p><canvas
-                        id="chartTiempo"></canvas>
+                    <p class="chart-question">Como crece el ecosistema a lo largo del tiempo?</p>
+                    <div class="filtro-temporal" id="filtroTemporal" role="group"
+                        aria-label="Rango de anios a mostrar">
+                        <button type="button" class="filtro-btn is-active" data-desde="2012">Desde 2012</button>
+                        <button type="button" class="filtro-btn" data-desde="1964">Todo el historico (1964&ndash;2025)</button>
+                        <span class="filtro-nota" id="filtroNota"></span>
+                    </div>
+                    <canvas id="chartTiempo"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-grid three-col">
+                <div class="chart-card">
+                    <h4>Participaciones por anio</h4>
+                    <p class="chart-question">Todas las participaciones registradas</p>
+                    <canvas id="chartTiempoParticipaciones"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h4>Atletas unicos por anio</h4>
+                    <p class="chart-question">Personas distintas que compitieron</p>
+                    <canvas id="chartTiempoAtletas"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h4>Federaciones activas</h4>
+                    <p class="chart-question">Cuantas federaciones organizaron competencias</p>
+                    <canvas id="chartTiempoFederaciones"></canvas>
                 </div>
             </div>
 
@@ -988,20 +1011,6 @@
     </footer>
 
     <script src="assets/js/app.js"></script>
-    <script>
-        const A = '#3b82f6', P = '#8b5cf6', G = 'rgba(255,255,255,0.05)', L = '#64748b';
-        Chart.defaults.color = L; Chart.defaults.font.family = "'Inter',sans-serif";
-        new Chart(document.getElementById('chartSexo'), { type: 'doughnut', data: { labels: ['Masculino', 'Femenino'], datasets: [{ data: [63.4, 36.6], backgroundColor: [A, P], borderColor: 'transparent', hoverOffset: 8 }] }, options: { cutout: '68%', plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true } }, tooltip: { callbacks: { label: c => ` ${c.label}: ${c.parsed}%` } } } } });
-        [['APLE', 38.2], ['WAP', 24.7], ['IPF (APF)', 18.9], ['WPC', 10.3], ['Otras', 7.9]].forEach(f => { document.getElementById('fedList').innerHTML += `<div class="bar-item"><div class="bar-meta"><span class="bar-name">${f[0]}</span><span class="bar-pct">${f[1]}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${f[1]}%"></div></div></div>`; });
-        new Chart(document.getElementById('chartEventos'), { type: 'bar', data: { labels: ['SBD', 'B', 'S', 'BD', 'SD'], datasets: [{ data: [71.2, 14.8, 7.3, 4.6, 2.1], backgroundColor: [A, P, '#06b6d4', '#10b981', '#f59e0b'], borderRadius: 6, borderSkipped: false }] }, options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { color: G }, ticks: { callback: v => v + '%' } }, y: { grid: { color: G } } } } });
-        new Chart(document.getElementById('chartEquipo'), { type: 'doughnut', data: { labels: ['Raw', 'Single-ply', 'Wraps', 'Multi-ply'], datasets: [{ data: [68.4, 16.2, 10.9, 4.5], backgroundColor: [A, P, '#06b6d4', '#f59e0b'], borderColor: 'transparent', hoverOffset: 6 }] }, options: { cutout: '65%', plugins: { legend: { position: 'bottom', labels: { padding: 12, usePointStyle: true } }, tooltip: { callbacks: { label: c => ` ${c.label}: ${c.parsed}%` } } } } });
-        new Chart(document.getElementById('chartAmbito'), { type: 'doughnut', data: { labels: ['Nacional', 'Internacional', 'N/E'], datasets: [{ data: [82.1, 14.3, 3.6], backgroundColor: [A, P, '#475569'], borderColor: 'transparent', hoverOffset: 6 }] }, options: { cutout: '65%', plugins: { legend: { position: 'bottom', labels: { padding: 12, usePointStyle: true } }, tooltip: { callbacks: { label: c => ` ${c.label}: ${c.parsed}%` } } } } });
-        const ctxT = document.getElementById('chartTiempo').getContext('2d'), ag = ctxT.createLinearGradient(0, 0, 0, 250); ag.addColorStop(0, 'rgba(59,130,246,0.3)'); ag.addColorStop(1, 'rgba(59,130,246,0)');
-        new Chart(ctxT, { type: 'line', data: { labels: [2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025], datasets: [{ label: 'Participaciones', data: [148, 210, 287, 395, 520, 680, 890, 1120, 430, 760, 1080, 1350, 1510, 1420], borderColor: A, backgroundColor: ag, tension: 0.4, fill: true, pointRadius: 4, pointBackgroundColor: A }, { label: 'Atletas unicos', data: [95, 140, 190, 260, 340, 440, 580, 710, 290, 490, 690, 860, 960, 905], borderColor: P, backgroundColor: 'transparent', tension: 0.4, borderDash: [5, 3], pointRadius: 3, pointBackgroundColor: P }] }, options: { plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 16 } }, tooltip: { mode: 'index', intersect: false } }, scales: { x: { grid: { color: G } }, y: { grid: { color: G }, beginAtZero: true } }, interaction: { mode: 'nearest', axis: 'x', intersect: false } } });
-        new Chart(document.getElementById('chartPlace'), { type: 'doughnut', data: { labels: ['Valida', 'DQ', 'NS', 'Guest', 'Otro'], datasets: [{ data: [88.2, 5.4, 3.8, 1.7, 0.9], backgroundColor: ['#22c55e', '#ef4444', '#f59e0b', '#06b6d4', '#475569'], borderColor: 'transparent', hoverOffset: 6 }] }, options: { cutout: '65%', plugins: { legend: { position: 'bottom', labels: { padding: 10, usePointStyle: true } }, tooltip: { callbacks: { label: c => ` ${c.label}: ${c.parsed}%` } } } } });
-        new Chart(document.getElementById('chartTotal'), { type: 'doughnut', data: { labels: ['Reportado', 'No reportado', 'Invalido'], datasets: [{ data: [84.6, 12.3, 3.1], backgroundColor: [A, '#475569', '#ef4444'], borderColor: 'transparent', hoverOffset: 6 }] }, options: { cutout: '65%', plugins: { legend: { position: 'bottom', labels: { padding: 10, usePointStyle: true } }, tooltip: { callbacks: { label: c => ` ${c.label}: ${c.parsed}%` } } } } });
-        [{ e: 'Edad conocida', p: '61.4%', c: '#22c55e' }, { e: 'Solo AgeClass', p: '26.8%', c: '#f59e0b' }, { e: 'Sin dato etario', p: '11.8%', c: '#ef4444' }].forEach(d => { document.getElementById('edadStatus').innerHTML += `<div class="status-item"><div class="status-dot" style="background:${d.c}"></div><div class="status-text"><span class="status-name">${d.e}</span><span class="status-val">${d.p}</span></div></div>`; });
-    </script>
 </body>
 
 </html>

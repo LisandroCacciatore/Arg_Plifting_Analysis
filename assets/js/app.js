@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderDonut('chartTotal', data.q10a_total, 'estado_total', 'porcentaje',
         false, ['#3b82f6', '#475569', '#ef4444']);
 
-    renderTemporal(data.q5_temporal);
+    inicializarTemporal(data.q5_temporal);
 });
 
 
@@ -172,9 +172,19 @@ function ocultarBannerMuestra() {
 // =============================================================================
 const PALETA_DEFAULT = ['#3b82f6', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#475569'];
 
+// Chart.js v4 lanza error si se crea un segundo gráfico sobre un canvas ya
+// usado, y ese error aborta TODO el render. Destruir antes de crear hace que
+// el render sea idempotente: se puede volver a llamar sin romper la página.
+function destruirGrafico(canvas) {
+    if (!canvas || !window.Chart || typeof Chart.getChart !== 'function') return;
+    const previo = Chart.getChart(canvas);
+    if (previo) previo.destroy();
+}
+
 function renderDonut(canvasId, datos, campoLabel, campoPct, esBarHorizontal = false, paleta = PALETA_DEFAULT) {
     const canvas = document.getElementById(canvasId);
     if (!canvas || !datos || !datos.length) return;
+    destruirGrafico(canvas);
 
     const labels = datos.map(d => d[campoLabel]);
     const values = datos.map(d => d[campoPct]);
@@ -227,17 +237,60 @@ function renderDonut(canvasId, datos, campoLabel, campoPct, esBarHorizontal = fa
 
 
 // =============================================================================
-// Gráfico temporal — Q5 (Line chart con área)
+// Evolución temporal — Q5
+//   · gráfico unificado (participaciones + atletas únicos)
+//   · un gráfico por métrica
+//   · filtro de rango de años
 // =============================================================================
+const ANIO_DESDE_DEFAULT = 2012;
+
+let temporalCompleto = [];
+let temporalDesde = ANIO_DESDE_DEFAULT;
+
+function inicializarTemporal(filas) {
+    if (!filas || !filas.length) return;
+    temporalCompleto = filas;
+
+    const botones = document.querySelectorAll('#filtroTemporal .filtro-btn');
+    botones.forEach(btn => {
+        btn.addEventListener('click', () => {
+            botones.forEach(b => b.classList.remove('is-active'));
+            btn.classList.add('is-active');
+            aplicarFiltroTemporal(Number(btn.dataset.desde));
+        });
+    });
+
+    aplicarFiltroTemporal(ANIO_DESDE_DEFAULT);
+}
+
+// Expuesta como global para poder testear el filtro sin eventos del DOM.
+function aplicarFiltroTemporal(desde) {
+    temporalDesde = Number(desde);
+    const visibles = temporalCompleto.filter(f => f.anio >= temporalDesde);
+
+    const nota = document.getElementById('filtroNota');
+    if (nota) {
+        const primero = visibles[0]?.anio ?? '—';
+        const ultimo = visibles[visibles.length - 1]?.anio ?? '—';
+        nota.textContent = `mostrando ${visibles.length} de ${temporalCompleto.length} años (${primero}–${ultimo})`;
+    }
+
+    renderTemporal(visibles);
+    renderTemporalMetrica('chartTiempoParticipaciones', visibles,
+        'participaciones', 'Participaciones', '#3b82f6');
+    renderTemporalMetrica('chartTiempoAtletas', visibles,
+        'atletas_unicos', 'Atletas únicos', '#8b5cf6');
+    renderTemporalMetrica('chartTiempoFederaciones', visibles,
+        'federaciones_activas', 'Federaciones activas', '#06b6d4');
+}
+
+// Gráfico unificado: participaciones + atletas únicos
 function renderTemporal(filas) {
     const canvas = document.getElementById('chartTiempo');
     if (!canvas || !filas || !filas.length) return;
+    destruirGrafico(canvas);
 
     const ctx = canvas.getContext('2d');
-    const años = filas.map(f => f.anio);
-    const part = filas.map(f => f.participaciones);
-    const atls = filas.map(f => f.atletas_unicos);
-
     const areaGrad = ctx.createLinearGradient(0, 0, 0, 260);
     areaGrad.addColorStop(0, 'rgba(59,130,246,0.35)');
     areaGrad.addColorStop(1, 'rgba(59,130,246,0)');
@@ -245,11 +298,11 @@ function renderTemporal(filas) {
     new Chart(canvas, {
         type: 'line',
         data: {
-            labels: años,
+            labels: filas.map(f => f.anio),
             datasets: [
                 {
                     label: 'Participaciones',
-                    data: part,
+                    data: filas.map(f => f.participaciones),
                     borderColor: '#3b82f6',
                     backgroundColor: areaGrad,
                     tension: 0.4,
@@ -260,7 +313,7 @@ function renderTemporal(filas) {
                 },
                 {
                     label: 'Atletas únicos',
-                    data: atls,
+                    data: filas.map(f => f.atletas_unicos),
                     borderColor: '#8b5cf6',
                     backgroundColor: 'transparent',
                     tension: 0.4,
@@ -275,6 +328,47 @@ function renderTemporal(filas) {
         options: {
             plugins: {
                 legend: { position: 'top', labels: { usePointStyle: true, padding: 16 } },
+                tooltip: { mode: 'index', intersect: false }
+            },
+            scales: {
+                x: { grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true }
+            },
+            interaction: { mode: 'nearest', axis: 'x', intersect: false }
+        }
+    });
+}
+
+// Gráfico de una sola métrica (vista separada)
+function renderTemporalMetrica(canvasId, filas, campo, etiqueta, color) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas || !filas || !filas.length) return;
+    destruirGrafico(canvas);
+
+    const ctx = canvas.getContext('2d');
+    const grad = ctx.createLinearGradient(0, 0, 0, 220);
+    grad.addColorStop(0, color + '55');
+    grad.addColorStop(1, color + '00');
+
+    new Chart(canvas, {
+        type: 'line',
+        data: {
+            labels: filas.map(f => f.anio),
+            datasets: [{
+                label: etiqueta,
+                data: filas.map(f => f[campo]),
+                borderColor: color,
+                backgroundColor: grad,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 3,
+                pointHoverRadius: 6,
+                pointBackgroundColor: color
+            }]
+        },
+        options: {
+            plugins: {
+                legend: { display: false },
                 tooltip: { mode: 'index', intersect: false }
             },
             scales: {

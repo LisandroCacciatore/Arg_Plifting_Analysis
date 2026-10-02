@@ -3,8 +3,24 @@
     "proyecto": "Powerlifting Argentina Data Analysis",
     "capa": "Capa 01 — Análisis Descriptivo Base",
     "dataset": "burnished-rider-368414.Openpowerlifting.OpenDataRaw",
-    "ultima_actualizacion": "2026-03-02",
-    "nota": "Reemplazar los valores de ejemplo con los resultados reales de BigQuery"
+    "ubicacion": "southamerica-east1",
+    "ultima_actualizacion": "2026-10-02",
+    "generado_por": "scripts/refresh_data.py",
+    "fuente_sql": "SQL/phase_2_core/QueryCapa01.sql",
+    "consultas": {
+      "q1_volumen": 1,
+      "q2_sexo": 2,
+      "q3_federaciones": 55,
+      "q4a_eventos": 6,
+      "q4b_equipamiento": 5,
+      "q5_temporal": 49,
+      "q6a_peso": 73,
+      "q7b_edad": 3,
+      "q8b_ambito": 2,
+      "q9b_place": 5,
+      "q10a_total": 2
+    },
+    "total_filas": 203
   },
   "q1_volumen": {
     "atletas_unicos": 2521,
@@ -145,21 +161,15 @@
       "atletas_unicos": 9
     },
     {
-      "Federation": "ProRaw",
-      "participaciones": 9,
-      "porcentaje": 0.08,
-      "atletas_unicos": 6
-    },
-    {
       "Federation": "USPF",
       "participaciones": 9,
       "porcentaje": 0.08,
       "atletas_unicos": 5
     },
     {
-      "Federation": "NAPF",
-      "participaciones": 8,
-      "porcentaje": 0.07,
+      "Federation": "ProRaw",
+      "participaciones": 9,
+      "porcentaje": 0.08,
       "atletas_unicos": 6
     },
     {
@@ -169,10 +179,10 @@
       "atletas_unicos": 8
     },
     {
-      "Federation": "AAU",
-      "participaciones": 5,
-      "porcentaje": 0.04,
-      "atletas_unicos": 2
+      "Federation": "NAPF",
+      "participaciones": 8,
+      "porcentaje": 0.07,
+      "atletas_unicos": 6
     },
     {
       "Federation": "FECHIPO",
@@ -181,8 +191,32 @@
       "atletas_unicos": 4
     },
     {
+      "Federation": "AAU",
+      "participaciones": 5,
+      "porcentaje": 0.04,
+      "atletas_unicos": 2
+    },
+    {
       "Federation": "ADFPA",
       "participaciones": 4,
+      "porcentaje": 0.03,
+      "atletas_unicos": 2
+    },
+    {
+      "Federation": "WRPF-Spain",
+      "participaciones": 3,
+      "porcentaje": 0.03,
+      "atletas_unicos": 2
+    },
+    {
+      "Federation": "GPC-Brazil",
+      "participaciones": 3,
+      "porcentaje": 0.03,
+      "atletas_unicos": 3
+    },
+    {
+      "Federation": "FPP",
+      "participaciones": 3,
       "porcentaje": 0.03,
       "atletas_unicos": 2
     },
@@ -193,16 +227,10 @@
       "atletas_unicos": 2
     },
     {
-      "Federation": "FPP",
+      "Federation": "APF",
       "participaciones": 3,
       "porcentaje": 0.03,
       "atletas_unicos": 2
-    },
-    {
-      "Federation": "IPA",
-      "participaciones": 3,
-      "porcentaje": 0.03,
-      "atletas_unicos": 1
     },
     {
       "Federation": "APU",
@@ -217,22 +245,10 @@
       "atletas_unicos": 1
     },
     {
-      "Federation": "APF",
+      "Federation": "IPA",
       "participaciones": 3,
       "porcentaje": 0.03,
-      "atletas_unicos": 2
-    },
-    {
-      "Federation": "GPC-Brazil",
-      "participaciones": 3,
-      "porcentaje": 0.03,
-      "atletas_unicos": 3
-    },
-    {
-      "Federation": "WRPF-Spain",
-      "participaciones": 3,
-      "porcentaje": 0.03,
-      "atletas_unicos": 2
+      "atletas_unicos": 1
     },
     {
       "Federation": "XPC",
@@ -247,49 +263,19 @@
       "atletas_unicos": 2
     },
     {
-      "Federation": "RPS",
-      "participaciones": 2,
-      "porcentaje": 0.02,
-      "atletas_unicos": 2
-    },
-    {
       "Federation": "USA-UA",
       "participaciones": 2,
       "porcentaje": 0.02,
       "atletas_unicos": 2
     },
     {
-      "Federation": "WPPL",
-      "participaciones": 1,
-      "porcentaje": 0.01,
-      "atletas_unicos": 1
+      "Federation": "RPS",
+      "participaciones": 2,
+      "porcentaje": 0.02,
+      "atletas_unicos": 2
     },
     {
-      "Federation": "FPPR",
-      "participaciones": 1,
-      "porcentaje": 0.01,
-      "atletas_unicos": 1
-    },
-    {
-      "Federation": "FPR",
-      "participaciones": 1,
-      "porcentaje": 0.01,
-      "atletas_unicos": 1
-    },
-    {
-      "Federation": "FEMEPO",
-      "participaciones": 1,
-      "porcentaje": 0.01,
-      "atletas_unicos": 1
-    },
-    {
-      "Federation": "NASA",
-      "participaciones": 1,
-      "porcentaje": 0.01,
-      "atletas_unicos": 1
-    },
-    {
-      "Federation": "GPC-AUS",
+      "Federation": "ABS",
       "participaciones": 1,
       "porcentaje": 0.01,
       "atletas_unicos": 1
@@ -301,7 +287,13 @@
       "atletas_unicos": 1
     },
     {
-      "Federation": "ABS",
+      "Federation": "FEMEPO",
+      "participaciones": 1,
+      "porcentaje": 0.01,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "WPPL",
       "participaciones": 1,
       "porcentaje": 0.01,
       "atletas_unicos": 1
@@ -313,19 +305,7 @@
       "atletas_unicos": 1
     },
     {
-      "Federation": "GPA-COL",
-      "participaciones": 1,
-      "porcentaje": 0.01,
-      "atletas_unicos": 1
-    },
-    {
-      "Federation": "WRPF-Colombia",
-      "participaciones": 1,
-      "porcentaje": 0.01,
-      "atletas_unicos": 1
-    },
-    {
-      "Federation": "USAPL",
+      "Federation": "FPPR",
       "participaciones": 1,
       "porcentaje": 0.01,
       "atletas_unicos": 1
@@ -337,7 +317,7 @@
       "atletas_unicos": 1
     },
     {
-      "Federation": "PAP",
+      "Federation": "GPC-AUS",
       "participaciones": 1,
       "porcentaje": 0.01,
       "atletas_unicos": 1
@@ -349,7 +329,43 @@
       "atletas_unicos": 1
     },
     {
+      "Federation": "PAP",
+      "participaciones": 1,
+      "porcentaje": 0.01,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "NASA",
+      "participaciones": 1,
+      "porcentaje": 0.01,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "WRPF-Colombia",
+      "participaciones": 1,
+      "porcentaje": 0.01,
+      "atletas_unicos": 1
+    },
+    {
       "Federation": "NZPF",
+      "participaciones": 1,
+      "porcentaje": 0.01,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "USAPL",
+      "participaciones": 1,
+      "porcentaje": 0.01,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "GPA-COL",
+      "participaciones": 1,
+      "porcentaje": 0.01,
+      "atletas_unicos": 1
+    },
+    {
+      "Federation": "FPR",
       "participaciones": 1,
       "porcentaje": 0.01,
       "atletas_unicos": 1
@@ -412,6 +428,302 @@
       "Equipment": "Unlimited",
       "participaciones": 168,
       "porcentaje": 1.46
+    }
+  ],
+  "q5_temporal": [
+    {
+      "anio": 1964,
+      "participaciones": 3,
+      "atletas_unicos": 3,
+      "federaciones_activas": 1
+    },
+    {
+      "anio": 1974,
+      "participaciones": 2,
+      "atletas_unicos": 2,
+      "federaciones_activas": 1
+    },
+    {
+      "anio": 1975,
+      "participaciones": 4,
+      "atletas_unicos": 4,
+      "federaciones_activas": 1
+    },
+    {
+      "anio": 1979,
+      "participaciones": 1,
+      "atletas_unicos": 1,
+      "federaciones_activas": 1
+    },
+    {
+      "anio": 1980,
+      "participaciones": 3,
+      "atletas_unicos": 2,
+      "federaciones_activas": 3
+    },
+    {
+      "anio": 1981,
+      "participaciones": 8,
+      "atletas_unicos": 8,
+      "federaciones_activas": 2
+    },
+    {
+      "anio": 1982,
+      "participaciones": 8,
+      "atletas_unicos": 8,
+      "federaciones_activas": 1
+    },
+    {
+      "anio": 1983,
+      "participaciones": 1,
+      "atletas_unicos": 1,
+      "federaciones_activas": 1
+    },
+    {
+      "anio": 1984,
+      "participaciones": 10,
+      "atletas_unicos": 10,
+      "federaciones_activas": 1
+    },
+    {
+      "anio": 1985,
+      "participaciones": 10,
+      "atletas_unicos": 8,
+      "federaciones_activas": 2
+    },
+    {
+      "anio": 1986,
+      "participaciones": 1,
+      "atletas_unicos": 1,
+      "federaciones_activas": 1
+    },
+    {
+      "anio": 1987,
+      "participaciones": 11,
+      "atletas_unicos": 11,
+      "federaciones_activas": 1
+    },
+    {
+      "anio": 1988,
+      "participaciones": 3,
+      "atletas_unicos": 3,
+      "federaciones_activas": 2
+    },
+    {
+      "anio": 1989,
+      "participaciones": 2,
+      "atletas_unicos": 2,
+      "federaciones_activas": 2
+    },
+    {
+      "anio": 1990,
+      "participaciones": 3,
+      "atletas_unicos": 3,
+      "federaciones_activas": 2
+    },
+    {
+      "anio": 1991,
+      "participaciones": 36,
+      "atletas_unicos": 35,
+      "federaciones_activas": 2
+    },
+    {
+      "anio": 1992,
+      "participaciones": 1,
+      "atletas_unicos": 1,
+      "federaciones_activas": 1
+    },
+    {
+      "anio": 1993,
+      "participaciones": 4,
+      "atletas_unicos": 4,
+      "federaciones_activas": 1
+    },
+    {
+      "anio": 1995,
+      "participaciones": 1,
+      "atletas_unicos": 1,
+      "federaciones_activas": 1
+    },
+    {
+      "anio": 1996,
+      "participaciones": 4,
+      "atletas_unicos": 3,
+      "federaciones_activas": 3
+    },
+    {
+      "anio": 1997,
+      "participaciones": 4,
+      "atletas_unicos": 3,
+      "federaciones_activas": 1
+    },
+    {
+      "anio": 1998,
+      "participaciones": 24,
+      "atletas_unicos": 24,
+      "federaciones_activas": 1
+    },
+    {
+      "anio": 1999,
+      "participaciones": 12,
+      "atletas_unicos": 12,
+      "federaciones_activas": 1
+    },
+    {
+      "anio": 2000,
+      "participaciones": 27,
+      "atletas_unicos": 26,
+      "federaciones_activas": 2
+    },
+    {
+      "anio": 2001,
+      "participaciones": 52,
+      "atletas_unicos": 50,
+      "federaciones_activas": 2
+    },
+    {
+      "anio": 2002,
+      "participaciones": 83,
+      "atletas_unicos": 74,
+      "federaciones_activas": 4
+    },
+    {
+      "anio": 2003,
+      "participaciones": 50,
+      "atletas_unicos": 45,
+      "federaciones_activas": 2
+    },
+    {
+      "anio": 2004,
+      "participaciones": 6,
+      "atletas_unicos": 6,
+      "federaciones_activas": 4
+    },
+    {
+      "anio": 2005,
+      "participaciones": 67,
+      "atletas_unicos": 67,
+      "federaciones_activas": 3
+    },
+    {
+      "anio": 2006,
+      "participaciones": 45,
+      "atletas_unicos": 43,
+      "federaciones_activas": 4
+    },
+    {
+      "anio": 2007,
+      "participaciones": 11,
+      "atletas_unicos": 11,
+      "federaciones_activas": 1
+    },
+    {
+      "anio": 2008,
+      "participaciones": 142,
+      "atletas_unicos": 83,
+      "federaciones_activas": 4
+    },
+    {
+      "anio": 2009,
+      "participaciones": 43,
+      "atletas_unicos": 40,
+      "federaciones_activas": 3
+    },
+    {
+      "anio": 2010,
+      "participaciones": 75,
+      "atletas_unicos": 60,
+      "federaciones_activas": 4
+    },
+    {
+      "anio": 2011,
+      "participaciones": 178,
+      "atletas_unicos": 110,
+      "federaciones_activas": 6
+    },
+    {
+      "anio": 2012,
+      "participaciones": 310,
+      "atletas_unicos": 138,
+      "federaciones_activas": 9
+    },
+    {
+      "anio": 2013,
+      "participaciones": 311,
+      "atletas_unicos": 188,
+      "federaciones_activas": 8
+    },
+    {
+      "anio": 2014,
+      "participaciones": 909,
+      "atletas_unicos": 356,
+      "federaciones_activas": 11
+    },
+    {
+      "anio": 2015,
+      "participaciones": 640,
+      "atletas_unicos": 290,
+      "federaciones_activas": 13
+    },
+    {
+      "anio": 2016,
+      "participaciones": 540,
+      "atletas_unicos": 274,
+      "federaciones_activas": 14
+    },
+    {
+      "anio": 2017,
+      "participaciones": 809,
+      "atletas_unicos": 322,
+      "federaciones_activas": 18
+    },
+    {
+      "anio": 2018,
+      "participaciones": 629,
+      "atletas_unicos": 329,
+      "federaciones_activas": 17
+    },
+    {
+      "anio": 2019,
+      "participaciones": 695,
+      "atletas_unicos": 319,
+      "federaciones_activas": 22
+    },
+    {
+      "anio": 2020,
+      "participaciones": 312,
+      "atletas_unicos": 178,
+      "federaciones_activas": 5
+    },
+    {
+      "anio": 2021,
+      "participaciones": 1043,
+      "atletas_unicos": 373,
+      "federaciones_activas": 16
+    },
+    {
+      "anio": 2022,
+      "participaciones": 975,
+      "atletas_unicos": 573,
+      "federaciones_activas": 15
+    },
+    {
+      "anio": 2023,
+      "participaciones": 1539,
+      "atletas_unicos": 818,
+      "federaciones_activas": 19
+    },
+    {
+      "anio": 2024,
+      "participaciones": 1527,
+      "atletas_unicos": 903,
+      "federaciones_activas": 18
+    },
+    {
+      "anio": 2025,
+      "participaciones": 340,
+      "atletas_unicos": 266,
+      "federaciones_activas": 9
     }
   ],
   "q6a_peso": [
@@ -812,144 +1124,29 @@
   ],
   "q9b_place": [
     {
-      "Place": "1",
-      "participaciones": 7237,
-      "porcentaje": 62.85
+      "tipo_resultado": "Posición válida",
+      "participaciones": 10947,
+      "porcentaje": 95.08
     },
     {
-      "Place": "2",
-      "participaciones": 1715,
-      "porcentaje": 14.89
-    },
-    {
-      "Place": "3",
-      "participaciones": 779,
-      "porcentaje": 6.77
-    },
-    {
-      "Place": "DQ",
+      "tipo_resultado": "Descalificado",
       "participaciones": 471,
       "porcentaje": 4.09
     },
     {
-      "Place": "4",
-      "participaciones": 374,
-      "porcentaje": 3.25
-    },
-    {
-      "Place": "5",
-      "participaciones": 252,
-      "porcentaje": 2.19
-    },
-    {
-      "Place": "6",
-      "participaciones": 156,
-      "porcentaje": 1.35
-    },
-    {
-      "Place": "7",
-      "participaciones": 116,
-      "porcentaje": 1.01
-    },
-    {
-      "Place": "NS",
+      "tipo_resultado": "No presentado",
       "participaciones": 88,
       "porcentaje": 0.76
     },
     {
-      "Place": "8",
-      "participaciones": 76,
-      "porcentaje": 0.66
-    },
-    {
-      "Place": "9",
-      "participaciones": 68,
-      "porcentaje": 0.59
-    },
-    {
-      "Place": "10",
-      "participaciones": 42,
-      "porcentaje": 0.36
-    },
-    {
-      "Place": "11",
-      "participaciones": 36,
-      "porcentaje": 0.31
-    },
-    {
-      "Place": "12",
-      "participaciones": 33,
-      "porcentaje": 0.29
-    },
-    {
-      "Place": "13",
-      "participaciones": 20,
-      "porcentaje": 0.17
-    },
-    {
-      "Place": "14",
-      "participaciones": 11,
-      "porcentaje": 0.1
-    },
-    {
-      "Place": "16",
-      "participaciones": 9,
-      "porcentaje": 0.08
-    },
-    {
-      "Place": "G",
+      "tipo_resultado": "Invitado/Guest",
       "participaciones": 6,
       "porcentaje": 0.05
     },
     {
-      "Place": "20",
-      "participaciones": 5,
-      "porcentaje": 0.04
-    },
-    {
-      "Place": "15",
-      "participaciones": 5,
-      "porcentaje": 0.04
-    },
-    {
-      "Place": "17",
-      "participaciones": 4,
-      "porcentaje": 0.03
-    },
-    {
-      "Place": "18",
-      "participaciones": 3,
-      "porcentaje": 0.03
-    },
-    {
-      "Place": "DD",
+      "tipo_resultado": "Doping descalificado",
       "participaciones": 2,
       "porcentaje": 0.02
-    },
-    {
-      "Place": "19",
-      "participaciones": 2,
-      "porcentaje": 0.02
-    },
-    {
-      "Place": "22",
-      "participaciones": 1,
-      "porcentaje": 0.01
-    },
-    {
-      "Place": "26",
-      "participaciones": 1,
-      "porcentaje": 0.01
-    },
-    {
-      "Place": "24",
-      "participaciones": 1,
-      "porcentaje": 0.01
-    },
-    {
-      "Place": "21",
-      "participaciones": 1,
-      "porcentaje": 0.01
     }
   ],
   "q10a_total": [

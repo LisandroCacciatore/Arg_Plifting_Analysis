@@ -166,6 +166,24 @@ Cada query responde a una pregunta explícita definida en la documentación.
 
 Todo el troubleshooting técnico está documentado por separado para evitar confusión con decisiones analíticas.
 
+## 🔁 Reproducir el análisis
+
+El dashboard no consume valores escritos a mano: `assets/data/data.json` se
+genera ejecutando las queries de `SQL/phase_2_core/` contra BigQuery.
+
+```bash
+python scripts/refresh_data.py            # regenera data.json
+python scripts/refresh_data.py --dry-run  # ejecuta sin escribir
+python scripts/refresh_data.py --check    # valida data.json sin tocar BigQuery
+npm test                                  # 49 tests (18 frontend + 31 Python)
+```
+
+El script **valida el contrato del frontend antes de escribir**: si el resultado
+no trae las claves y campos que `assets/js/app.js` lee, no escribe nada y falla.
+Así un gráfico roto no puede llegar al dashboard sin que un test lo detecte.
+
+Requisitos y credenciales: ver [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
 ## 🎯 Qué demuestra este repo
 
 - cómo aplicar mentalidad QA al análisis de datos

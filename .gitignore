@@ -1,0 +1,37 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Credenciales GCP — NUNCA versionar
+# ─────────────────────────────────────────────────────────────────────────────
+.gcp/
+*service-account*.json
+*-sa-key.json
+*sa-key*.json
+credentials.json
+.env
+.env.*
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Python
+# ─────────────────────────────────────────────────────────────────────────────
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Node / frontend (futuro build step)
+# ─────────────────────────────────────────────────────────────────────────────
+node_modules/
+dist/
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Sistema
+# ─────────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# NOTA: assets/data/data.json SÍ se versiona (es el contrato de la vista).
+#       Lo que no se versiona son los datos crudos ni las credenciales.

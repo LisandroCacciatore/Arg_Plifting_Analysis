@@ -22,6 +22,8 @@ Queries Capa 01 - Análisis Descriptivo Base
 
 -- ================================================================================
 -- Q1 — VOLUMEN DE PARTICIPACIÓN
+-- @data-key: q1_volumen
+-- @data-shape: object
 -- ================================================================================
 -- Pregunta: ¿Cuántos atletas y participaciones existen en el dataset para Argentina?
 -- Valor analítico: Define el tamaño del ecosistema; punto de entrada para 
@@ -40,6 +42,7 @@ WHERE
 
 -- ================================================================================
 -- Q2 — DISTRIBUCIÓN POR SEXO
+-- @data-key: q2_sexo
 -- ================================================================================
 -- Pregunta: ¿Cómo se distribuye la participación por sexo?
 -- Valor analítico: Describe diversidad y composición básica del sistema, 
@@ -62,6 +65,7 @@ ORDER BY
 
 -- ================================================================================
 -- Q3 — DISTRIBUCIÓN POR FEDERACIÓN
+-- @data-key: q3_federaciones
 -- ================================================================================
 -- Pregunta: ¿En qué federaciones compiten los atletas del país?
 -- Valor analítico: Muestra estructura institucional del deporte y heterogeneidad 
@@ -92,6 +96,7 @@ ORDER BY
 -- ================================================================================
 
 -- Q4a: Distribución por tipo de evento
+-- @data-key: q4a_eventos
 SELECT 
   Event,
   COUNT(*) AS participaciones,
@@ -106,6 +111,7 @@ ORDER BY
   participaciones DESC;
 
 -- Q4b: Distribución por equipamiento
+-- @data-key: q4b_equipamiento
 SELECT 
   Equipment,
   COUNT(*) AS participaciones,
@@ -123,6 +129,7 @@ ORDER BY
 ***Updated***
 -- ================================================================================
 -- Q5 — PARTICIPACIÓN A LO LARGO DEL TIEMPO
+-- @data-key: q5_temporal
 -- ================================================================================
 -- Pregunta: ¿Cómo evoluciona la participación a lo largo del tiempo?
 -- Valor analítico: Describe crecimiento, estabilidad o contracción del ecosistema, 
@@ -158,6 +165,7 @@ Reescribí todo manualmente para asegurar caracteres ASCII estándar
 -- ================================================================================
 
 -- Q6a: Distribución general
+-- @data-key: q6a_peso
 SELECT 
   WeightClassKg,
   COUNT(*) AS participaciones,
@@ -235,6 +243,7 @@ ORDER BY
   participaciones DESC;
 
 -- Q7b: Completitud del dato de edad
+-- @data-key: q7b_edad
 SELECT 
   CASE 
     WHEN Age IS NOT NULL THEN 'Edad conocida'
@@ -276,6 +285,7 @@ ORDER BY
   participaciones DESC;
 
 -- Q8b: Clasificación local vs internacional
+-- @data-key: q8b_ambito
 SELECT 
   CASE 
     WHEN MeetCountry = 'Argentina' THEN 'Nacional'
@@ -317,6 +327,7 @@ ORDER BY
   participaciones DESC;
 
 -- Q9b: Clasificación por tipo de resultado
+-- @data-key: q9b_place
 SELECT 
   CASE 
     WHEN SAFE_CAST(Place AS INT64) IS NOT NULL THEN 'Posición válida'
@@ -348,6 +359,7 @@ ORDER BY
 -- ================================================================================
 
 -- Q10a: Completitud del dato TotalKg
+-- @data-key: q10a_total
 SELECT 
   CASE 
     WHEN TotalKg IS NOT NULL AND TotalKg > 0 THEN 'Total reportado'
