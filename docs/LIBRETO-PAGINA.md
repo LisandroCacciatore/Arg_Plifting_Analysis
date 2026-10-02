@@ -458,7 +458,44 @@ Nota metodologica: este dashboard no busca mostrar quien es mejor. Busca mostrar
 
 ---
 
-# 10. Footer
+# 10. Capa 02 — Comparador de cohorte
+
+Sección nueva, **aditiva**. No modifica ningún bloque de la Capa 01: se agrega
+después del dashboard y antes del footer, así que sus bloques van acá en el orden
+de la página.
+
+Por qué una sección y no un ítem del nav: el nav tiene un tope de cuatro ítems
+documentado en la sección 1, y agregar un quinto satura en mobile. El link al
+comparador vive en el cuerpo de la página, no en la barra.
+
+## Encabezado de sección
+
+> Capa 02 — Comparador de cohorte
+> La Capa 01 describe una poblacion. Esta ubica a un perfil dentro de ella: dado un atleta con sus marcas, donde esta parado frente a sus pares.
+> Mismo sexo, misma clase de edad, mismo equipamiento, mismo evento. El resultado es un percentil, no un consejo.
+
+## Banner de origen
+
+> Sin backend — las tablas de percentiles se congelan en assets/data/cohortes.json, generado por scripts/cohortes.py. Los numeros se calculan en el navegador contra un archivo versionado en el repositorio.
+
+## Llamado a la accion
+
+> Abrir el comparador
+
+## Notas
+
+- El corte de alcance va escrito en el copy de la propia página del comparador
+  ("Esta capa mide; no recomienda"), no acá. Un lector que llegue directo a
+  `comparador.html` no pasa por el dashboard y tiene que enterarse igual.
+- Los números de la sección no se escriben a mano: la cantidad de cohortes vive
+  en `assets/data/cohortes.json`, que la página del comparador lee. Poner "399
+  cohortes" en el HTML violaría la regla de la tarjeta 1 del hero.
+- Si algún día el comparador se promueve al nav, hay que sacar otro ítem: el tope
+  de cuatro es por mobile, no por importancia.
+
+---
+
+# 11. Footer
 
 ## Copyright
 

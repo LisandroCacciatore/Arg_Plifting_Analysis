@@ -56,6 +56,12 @@ jobs:
       - name: Contrato de data.json
         run: python scripts/refresh_data.py --check
 
+      # El comparador es estático: cohortes.json es su única fuente. Si no trae
+      # las métricas, los ejes o la tabla de puntaje que comparador.js lee, la
+      # página no compara nada. Mismo mecanismo que el contrato de data.json.
+      - name: Contrato de cohortes.json
+        run: python scripts/cohortes.py --check
+
       # Cada query exportable debe declarar su @data-key, sin duplicados, y
       # cubrir todo lo que el frontend consume.
       - name: Marcadores del SQL
@@ -76,8 +82,10 @@ jobs:
             echo "| Check | Qué prueba |"
             echo "|---|---|"
             echo "| Dashboard | ejecuta \`index.html\` en un sandbox con Chart.js stubbeado: 10 gráficos con datos reales, filtro temporal, KPIs |"
+            echo "| Comparador | ejecuta \`comparador.html\`: cohorte, percentil, banda por n chico y que sin datos no muestre nada |"
             echo "| Pipeline | parseo del SQL, formas de datos y contrato con el frontend |"
             echo "| Contrato de \`data.json\` | que existan las claves y campos que lee \`app.js\` |"
+            echo "| Contrato de \`cohortes.json\` | que existan las métricas, ejes y tabla de puntaje que lee \`comparador.js\` |"
             echo "| Marcadores del SQL | \`@data-key\` sin duplicados, cubriendo lo que consume el frontend |"
             echo "| Libreto vs pagina | cada bloque de copy del libreto aparece en \`index.html\`, en orden |"
           } >> "$GITHUB_STEP_SUMMARY"

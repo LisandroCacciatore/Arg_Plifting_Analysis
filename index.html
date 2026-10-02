@@ -1050,6 +1050,35 @@
         </div>
     </section>
 
+    <!-- Capa 02 es aditiva: la Capa 01 describe una poblacion, esta ubica a un
+         perfil dentro de ella. Mide; no recomienda. El diseno completo, con la
+         evidencia medida y los criterios de test, esta en
+         docs/03_Arquitectura/02_Fase_02/ -->
+    <section class="section" id="comparador">
+        <div class="container">
+            <div class="section-header">
+                <h2>Capa 02 &mdash; Comparador de cohorte</h2>
+                <div class="divider"></div>
+                <p>La Capa 01 describe una poblacion. Esta ubica a un perfil dentro de ella: dado un atleta con
+                    sus marcas, <strong>donde esta parado</strong> frente a sus pares.</p>
+                <p>Mismo sexo, misma clase de edad, mismo equipamiento, mismo evento. El resultado es un
+                    percentil, no un consejo.</p>
+            </div>
+
+            <div class="looker-pending-banner">
+                <i class="fa-solid fa-code-branch"></i>
+                <div><strong>Sin backend</strong> &mdash; las tablas de percentiles se congelan en
+                    <code>assets/data/cohortes.json</code>, generado por <code>scripts/cohortes.py</code>.
+                    Los numeros se calculan en el navegador contra un archivo versionado en el repositorio.</div>
+            </div>
+
+            <div class="hero-cta" style="justify-content:center; margin-top:2rem;">
+                <a href="comparador.html" class="btn-primary">Abrir el comparador
+                    <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </section>
+
     <footer>
         <div class="container footer-content">
             <div class="brand"><span class="accent">L</span>C. <span class="dim">Data</span></div>

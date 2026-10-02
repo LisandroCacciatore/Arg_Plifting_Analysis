@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparador de cohorte · Powerlifting Argentina Data Analysis</title>
+    <meta name="description"
+        content="Compara un perfil de levantador contra su cohorte real de OpenPowerlifting: mismo sexo, clase de edad, equipamiento y evento. Devuelve un percentil, no un consejo.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .cmp-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 1.25rem;
+            margin-top: 2rem;
+        }
+
+        .cmp-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+        }
+
+        .cmp-field label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        .cmp-field input,
+        .cmp-field select {
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 0.7rem 0.85rem;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+
+        .cmp-field input:focus,
+        .cmp-field select:focus {
+            outline: none;
+            border-color: rgba(59, 130, 246, 0.6);
+        }
+
+        .cmp-field small {
+            font-size: 0.72rem;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .cmp-lev {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1.25rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .cmp-actions {
+            margin-top: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .cmp-error {
+            margin-top: 1.5rem;
+            border-left: 3px solid #f87171;
+            background: rgba(248, 113, 113, 0.08);
+            border-radius: 0 10px 10px 0;
+            padding: 1.1rem 1.35rem;
+        }
+
+        .cmp-error[hidden] {
+            display: none;
+        }
+
+        .cmp-error h3 {
+            font-size: 0.95rem;
+            color: #fca5a5;
+            margin-bottom: 0.6rem;
+        }
+
+        .cmp-error li {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+
+        .cmp-error ul {
+            margin-left: 1.1rem;
+        }
+
+        .cmp-res {
+            margin-top: 1.5rem;
+        }
+
+        .cmp-res[hidden] {
+            display: none;
+        }
+
+        .cmp-bloque {
+            background: rgba(30, 41, 59, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 14px;
+            padding: 1.5rem 1.6rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .cmp-bloque h3 {
+            font-size: 1.05rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .cmp-n {
+            display: inline-block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+            background: rgba(59, 130, 246, 0.15);
+            color: #93c5fd;
+        }
+
+        .cmp-n.fina {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fcd34d;
+        }
+
+        .cmp-perc {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.6rem;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        .cmp-perc .u {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-left: 0.35rem;
+        }
+
+        .cmp-def {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.9;
+        }
+
+        .cmp-def strong {
+            color: var(--text-primary);
+        }
+
+        table.cmp-tabla {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        table.cmp-tabla th {
+            text-align: left;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            padding-bottom: 0.6rem;
+            font-weight: 700;
+        }
+
+        table.cmp-tabla td {
+            padding: 0.55rem 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--text-secondary);
+        }
+
+        table.cmp-tabla td:first-child {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        table.cmp-tabla td.num {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .cmp-barra {
+            position: relative;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+            min-width: 70px;
+        }
+
+        .cmp-barra i {
+            position: absolute;
+            inset: 0 auto 0 0;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border-radius: 3px;
+        }
+
+        .cmp-diag {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+        }
+
+        .cmp-diag.ok {
+            color: #4ade80;
+        }
+
+        .cmp-diag.atras {
+            color: #fbbf24;
+        }
+
+        .cmp-lim {
+            list-style: none;
+        }
+
+        .cmp-lim li {
+            display: flex;
+            gap: 0.7rem;
+            align-items: flex-start;
+            color: var(--text-secondary);
+            font-size: 0.87rem;
+            line-height: 1.7;
+            margin-bottom: 0.5rem;
+        }
+
+        .cmp-lim i {
+            color: #fbbf24;
+            margin-top: 0.35rem;
+        }
+
+        .cmp-alt {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-top: 0.5rem;
+        }
+
+        .cmp-alt button {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #93c5fd;
+            border-radius: 999px;
+            padding: 0.45rem 0.95rem;
+            font-family: inherit;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .cmp-alt button:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .cmp-trace {
+            font-size: 0.75rem;
+            color: #64748b;
+            line-height: 1.9;
+            margin-top: 1rem;
+        }
+
+        .cmp-aviso {
+            border-left: 3px solid #3b82f6;
+            background: rgba(59, 130, 246, 0.07);
+            border-radius: 0 10px 10px 0;
+            padding: 1rem 1.25rem;
+            font-size: 0.87rem;
+            color: var(--text-secondary);
+            line-height: 1.75;
+            margin-top: 1.5rem;
+        }
+
+        .cmp-aviso strong {
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 640px) {
+            .cmp-perc {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="index.html" class="logo"><span class="accent">L</span>C. <span class="dim">Data</span></a>
+            <ul class="nav-links">
+                <li><a href="index.html">El Proyecto</a></li>
+                <li><a href="index.html#architecture">Arquitectura</a></li>
+                <li><a href="index.html#dashboards">Ver Analisis</a></li>
+                <li><a href="comparador.html" class="btn-primary-outline">Comparador</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <div class="badge">Capa 02 &middot; Comparacion</div>
+                <h2>Donde esta parado un perfil, en numeros</h2>
+                <p>El perfil se carga a mano y se compara contra su cohorte real: mismo sexo, misma clase de
+                    edad, mismo equipamiento, mismo evento. El resultado es <strong>un percentil</strong>, no un
+                    consejo. Esta capa mide; no recomienda.</p>
+            </div>
+
+            <div class="cmp-aviso">
+                <strong>Que se puede esperar de esta pagina.</strong> Ubica un perfil dentro de una poblacion y
+                detecta cual de los tres levantamientos esta atrasado respecto de los otros. No dice que
+                entrenar: eso necesita datos que esta fuente no tiene (historial, lesiones, tecnica,
+                disponibilidad) y esta fuera del alcance de la capa.
+            </div>
+        </div>
+    </section>
+
+    <section class="section bg-alt">
+        <div class="container">
+            <div class="chart-card wide">
+                <h3 class="chart-question"><i class="fa-solid fa-sliders"></i> 1. El perfil</h3>
+
+                <form id="cmp-form" autocomplete="off">
+                    <div class="cmp-form">
+                        <div class="cmp-field">
+                            <label for="cmp-sexo">Sexo</label>
+                            <select id="cmp-sexo" required>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                            </select>
+                        </div>
+                        <div class="cmp-field">
+                            <label for="cmp-edad">Edad</label>
+                            <input type="number" id="cmp-edad" min="5" max="120" step="1" value="27" required>
+                            <small>Se mapea a la clase de edad de OpenPowerlifting y la clase usada se muestra</small>
+                        </div>
+                        <div class="cmp-field">
+                            <label for="cmp-peso">Peso corporal (kg)</label>
+                            <input type="number" id="cmp-peso" min="1" max="400" step="0.1" value="88" required>
+                            <small>No se usa como filtro: el puntaje ya lo normaliza</small>
+                        </div>
+                        <div class="cmp-field">
+                            <label for="cmp-equipo">Equipamiento</label>
+                            <select id="cmp-equipo" required></select>
+                        </div>
+                    </div>
+
+                    <div class="cmp-lev">
+                        <div class="cmp-field">
+                            <label for="cmp-sentadilla">Sentadilla (kg)</label>
+                            <input type="number" id="cmp-sentadilla" min="1" max="1000" step="0.5" value="220" required>
+                        </div>
+                        <div class="cmp-field">
+                            <label for="cmp-banco">Banco (kg)</label>
+                            <input type="number" id="cmp-banco" min="1" max="1000" step="0.5" value="140" required>
+                        </div>
+                        <div class="cmp-field">
+                            <label for="cmp-despegue">Despegue (kg)</label>
+                            <input type="number" id="cmp-despegue" min="1" max="1000" step="0.5" value="250" required>
+                        </div>
+                        <div class="cmp-field">
+                            <label for="cmp-total">Total (kg)</label>
+                            <input type="text" id="cmp-total" readonly tabindex="-1">
+                            <small>Suma de los tres</small>
+                        </div>
+                    </div>
+
+                    <div class="cmp-form" style="margin-top:1.5rem">
+                        <div class="cmp-field">
+                            <label for="cmp-alcance">Alcance</label>
+                            <select id="cmp-alcance"></select>
+                        </div>
+                        <div class="cmp-field">
+                            <label for="cmp-ventana">Ventana temporal</label>
+                            <select id="cmp-ventana"></select>
+                            <small>Contra quien se mide: competidores desde esa fecha</small>
+                        </div>
+                    </div>
+
+                    <div class="cmp-actions">
+                        <button type="submit" class="btn-primary" id="cmp-submit">
+                            <i class="fa-solid fa-chart-simple"></i> Comparar
+                        </button>
+                        <span id="cmp-estado" class="cmp-trace"></span>
+                    </div>
+                </form>
+
+                <div class="cmp-error" id="cmp-error" hidden>
+                    <h3><i class="fa-solid fa-circle-xmark"></i> El perfil no se puede comparar</h3>
+                    <ul id="cmp-error-lista"></ul>
+                </div>
+
+                <div class="cmp-res" id="cmp-res" hidden></div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="brand"><span class="accent">L</span>C. <span class="dim">Data</span></div>
+            <div class="social-links">
+                <a href="https://www.linkedin.com/in/lisandrocacciatore/" target="_blank" aria-label="LinkedIn"><i
+                        class="fa-brands fa-linkedin"></i></a>
+                <a href="https://github.com/LisandroCacciatore" target="_blank" aria-label="GitHub"><i
+                        class="fa-brands fa-github"></i></a>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2026 Lisandro Cacciatore &middot; Sport Performance Data Architecture &middot;
+                    OpenPowerlifting Dataset</p>
+                <p id="cmp-pie"></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/js/comparador.js"></script>
+    <script src="assets/js/comparador-pagina.js"></script>
+</body>
+
+</html>

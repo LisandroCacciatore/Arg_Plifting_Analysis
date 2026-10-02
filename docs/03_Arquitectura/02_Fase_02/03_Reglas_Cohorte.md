@@ -183,6 +183,15 @@ El n se muestra **siempre**, en los cuatro casos. Un percentil acompañado de
 n=7 no es un percentil con una advertencia: es una advertencia con un número
 pegado.
 
+**Cómo se manifiesta en la práctica el escalón `< 10`:** las celdas con n<10 **no
+se emiten** al artefacto (`@n-minimo: 10` en el SQL). O sea que el motor nunca ve
+una celda con n=1: ve que **la celda no existe**. Por eso la escalera de abajo
+registra los intentos fallidos y el resultado los declara — si no, el usuario no
+podría distinguir "no hay datos de tu categoría" de "elegiste mal un filtro".
+
+El código igual contempla el caso `n < 10` (por si mañana baja el mínimo de
+emisión), pero hoy el camino real es el de la celda ausente.
+
 ### Escalera de degradación
 
 Cuando la celda es fina, en este orden:
@@ -238,10 +247,16 @@ Medición real:
 | **Bench % total** | 0,209 | 0,222 | 0,236 | 0,250 | 0,265 |
 | **Dead % total** | 0,376 | 0,391 | 0,407 | 0,424 | 0,439 |
 
-Estos valores son de `APPROX_QUANTILES`, que es determinista para el mismo
-conjunto de datos pero **aproximado**: los tests comparan con tolerancia, no con
-igualdad exacta. La tolerancia y su justificación están en
-[Testing de la capa](04_Testing_Capa02.md).
+Estos valores son de `APPROX_QUANTILES`, que **no es reproducible bit a bit**: la
+misma consulta sobre los mismos datos puede devolver el último decimal distinto
+entre corridas y entre formas de consulta. Verificado en la práctica: `p75` de la
+grilla fina salió **425,6** en una medición y **425,5** al regenerar el artefacto.
+
+Por eso la tabla de arriba es **referencia, no verdad exacta**, y los tests
+comparan con tolerancia (ver [Testing de la capa](04_Testing_Capa02.md)). Perseguir
+el último decimal contra `APPROX_QUANTILES` acopla los tests al plan de ejecución
+de BigQuery: fallarían sin que haya ningún error real, y un test que falla por un
+motivo que no es un error se termina desactivando.
 
 ### Comprobación de consistencia — y un error que esta sección tuvo
 
