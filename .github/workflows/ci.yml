@@ -41,8 +41,12 @@ jobs:
       # Ejecuta index.html como el navegador, con un stub de Chart.js que
       # reproduce su restricción real: no se puede crear un segundo gráfico
       # sobre el mismo canvas. Verifica que los gráficos tengan datos reales.
+      #
+      # El glob va SIN comillas a propósito: así lo expande el shell. Node 20 no
+      # soporta globs dentro de `--test` (llegaron en Node 21), y con comillas el
+      # runner recibía la cadena literal y fallaba.
       - name: Tests del dashboard
-        run: node --test "tests/frontend/*.test.mjs"
+        run: node --test tests/frontend/*.test.mjs
 
       - name: Tests del pipeline
         run: python -m pytest tests/ -q

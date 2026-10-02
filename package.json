@@ -5,7 +5,7 @@
   "description": "Análisis descriptivo de powerlifting argentino sobre BigQuery (Capa 01)",
   "scripts": {
     "test": "npm run test:js && npm run test:py",
-    "test:js": "node --test \"tests/frontend/*.test.mjs\"",
+    "test:js": "node --test tests/frontend/*.test.mjs",
     "test:py": ".venv\\Scripts\\python.exe -m pytest tests/ -q",
     "refresh": ".venv\\Scripts\\python.exe scripts/refresh_data.py",
     "refresh:dry": ".venv\\Scripts\\python.exe scripts/refresh_data.py --dry-run",
