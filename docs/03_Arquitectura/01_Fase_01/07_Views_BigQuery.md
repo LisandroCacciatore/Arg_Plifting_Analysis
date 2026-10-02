@@ -72,23 +72,37 @@ Motivos:
 
 Por eso `scripts/refresh_data.py` **no lee las vistas**.
 
-## Baja de las vistas
+## Baja de las vistas — COMPLETADA
 
-```sql
--- Pegar completo en la consola de BigQuery, autenticado como dueño del proyecto.
--- Requiere permiso bigquery.tables.delete.
-scripts/drop_legacy_views.sql
+**Estado: ejecutada el 2026-10-02.** Verificado contra la API:
+
+```
+CONTENIDO ACTUAL DEL DATASET
+  TABLE  OpenDataRaw
+
+tablas totales:  1
+vistas:          0   ✓ ninguna (baja completa)
+tabla cruda:     OpenDataRaw  ✓ intacta
+filas Argentina: 11,514  ✓ el crudo sigue consultable
 ```
 
-> **Por qué el script y no un automatismo:** el service account del pipeline tiene
-> solo `bigquery.jobUser` + `bigquery.dataViewer`. Darle permiso de borrado a una
-> credencial de lectura sería un riesgo mayor que el problema que resuelve. La baja
-> se hace una sola vez, a mano, con credenciales de dueño.
+El script usado queda versionado en `scripts/drop_legacy_views.sql` por si hay que
+repetirlo en otro entorno (por ejemplo, al recrear el proyecto).
 
-**No se toca `OpenDataRaw`.** Es la única tabla del dataset y la fuente del crudo.
+**Verificación de que la baja no afectó al pipeline:** se volvió a correr
+`scripts/refresh_data.py` después del DROP y `assets/data/data.json` quedó
+byte-idéntico. El pipeline nunca leyó las vistas; siempre consultó la tabla cruda.
+
+> **Por qué el script y no un automatismo:** el service account del pipeline tiene
+> solo `bigquery.jobUser` + `bigquery.dataViewer`, y esas credenciales alcanzan para
+> leer los datos pero **no** para borrarlos. La baja se hizo una sola vez, a mano,
+> con credenciales de dueño del proyecto. Es la postura correcta: una credencial de
+> solo lectura no necesita permiso de borrado, ni siquiera para una limpieza.
+
+**No se tocó `OpenDataRaw`.** Es la única tabla del dataset y la fuente del crudo.
 
 Si alguna vez hace falta una de estas vistas, se recrea copiando la query
-correspondiente del archivo `.sql` del repositorio. No se pierde nada.
+correspondiente del archivo `.sql` del repositorio. No se perdió nada.
 
 ## Definición preservada
 

@@ -197,7 +197,7 @@ solo lectura y no tiene permiso de borrado, a propósito.
 
 | # | Pendiente | Prioridad |
 |---|---|---|
-| 1 | Ejecutar `scripts/drop_legacy_views.sql` en la consola de BigQuery | Media |
+| 1 | ~~Ejecutar `scripts/drop_legacy_views.sql`~~ **hecho 2026-10-02** — el dataset quedó con `OpenDataRaw` únicamente | ✅ |
 | 2 | Arreglar la animación del contador de KPIs (separador de miles `es-AR`) | Baja |
 | 3 | Registrar fecha y versión del volcado crudo usado en cada carga (ya figuraba como pendiente en `data/01_Raw/README.md`) | Media |
 | 4 | Decidir si el pipeline corre programado (cronjob) o solo a demanda | Baja |
