@@ -52,6 +52,7 @@ Configuración opcional por entorno: `BQ_PROJECT`, `BQ_DATASET`, `BQ_TABLE`, `BQ
 | Regenerar los datos | `python scripts/refresh_data.py` |
 | Ver qué haría sin escribir | `python scripts/refresh_data.py --dry-run` |
 | Validar `data.json` sin red | `python scripts/refresh_data.py --check` |
+| Verificar que Pages sirve el último commit | `npm run verify:deploy` |
 | Ver el dashboard | `python -m http.server 8899 --bind 127.0.0.1` |
 
 ## Cómo agregar una query

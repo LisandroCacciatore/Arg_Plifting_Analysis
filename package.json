@@ -10,6 +10,7 @@
     "refresh": ".venv\\Scripts\\python.exe scripts/refresh_data.py",
     "refresh:dry": ".venv\\Scripts\\python.exe scripts/refresh_data.py --dry-run",
     "check": ".venv\\Scripts\\python.exe scripts/refresh_data.py --check",
+    "verify:deploy": "bash scripts/verify_deploy.sh",
     "serve": "python -m http.server 8899 --bind 127.0.0.1"
   },
   "engines": {
