@@ -55,6 +55,25 @@ Configuración opcional por entorno: `BQ_PROJECT`, `BQ_DATASET`, `BQ_TABLE`, `BQ
 | Verificar que Pages sirve el último commit | `npm run verify:deploy` |
 | Ver el dashboard | `python -m http.server 8899 --bind 127.0.0.1` |
 
+## Convenciones de copy
+
+La prosa de `index.html` va **sin tildes ni enie**: la pagina escribe `Analisis`,
+`participacion`, `unico`, `anio`. No es un descuido, es la convencion del archivo, y
+un test la sostiene (`test_la_prosa_de_la_pagina_no_usa_tildes`).
+
+Si escribis copy nuevo, respetala. Es facil de romper sin darse cuenta: le paso al
+banner de error, que quedo con tildes y en voseo dentro de un sitio que no usa ni una
+cosa ni la otra.
+
+Si la convencion cambia (por ejemplo, si el sitio pasa a UTF-8 con tildes correctas),
+borra ese test: esta para forzar una decision consciente, no para bloquear.
+
+No se prohibe todo lo no-ASCII: el `<title>` lleva un `·` y el diagrama de arquitectura
+usa emoji como iconos. Solo las letras acentuadas.
+
+La prosa del resto del repo (README, `docs/*.md`, CONTRIBUTING) **si** usa tildes
+correctas: son documentos, no la pagina.
+
 ## Cómo agregar una query
 
 1. Escribila en `SQL/phase_2_core/QueryCapa01.sql` con un encabezado `-- Qn — ...`.

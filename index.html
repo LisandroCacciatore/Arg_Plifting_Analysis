@@ -242,7 +242,7 @@
             line-height: 1.5;
         }
 
-        /* Estado de error: si data.json no carga, no se presenta ningún dato.
+        /* Estado de error: si data.json no carga, no se presenta ningun dato.
            El JS marca <body> con .sin-datos y muestra este banner. */
         .error-banner {
             display: flex;
@@ -266,16 +266,16 @@
         }
 
         /* `display: flex` de arriba pisa el `[hidden] { display: none }` del
-           user-agent (los estilos de autor ganan sobre los del navegador), así
-           que el banner se vería SIEMPRE, incluso con los datos cargados. Hace
-           falta declararlo explícitamente. */
+           user-agent (los estilos de autor ganan sobre los del navegador), asi
+           que el banner se veria SIEMPRE, incluso con los datos cargados. Hace
+           falta declararlo explicitamente. */
         .error-banner[hidden] {
             display: none;
         }
 
         /* Con .sin-datos los bloques que solo tienen sentido con datos reales
-           se ocultan: no se muestran números que parezcan datos. El banner de
-           origen también, porque afirmaría un dashboard que no se pudo armar. */
+           se ocultan: no se muestran numeros que parezcan datos. El banner de
+           origen tambien, porque afirmaria un dashboard que no se pudo armar. */
         body.sin-datos .kpi-row,
         body.sin-datos .chart-grid,
         body.sin-datos .bar-list,
@@ -915,15 +915,15 @@
             </div>
 
             <!-- Visible solo si data.json no carga. El dashboard no tiene datos
-                 de reemplazo, así que sin datos reales se muestra esto y nada más. -->
+                 de reemplazo, asi que sin datos reales se muestra esto y nada mas. -->
             <div class="error-banner" id="bannerError" hidden role="alert">
                 <i class="fa-solid fa-triangle-exclamation"></i>
                 <div>
                     <strong>No se pudieron cargar los datos del dashboard.</strong><br>
-                    <code>assets/data/data.json</code> no respondió, así que no se
-                    muestra ningún gráfico ni indicador: <em>este proyecto no usa
-                    valores de reemplazo</em>. Regenerá el archivo con
-                    <code>python scripts/refresh_data.py</code> y recargá la página.
+                    <code>assets/data/data.json</code> no respondio, asi que no se
+                    muestra ningun grafico ni indicador: <em>este proyecto no usa
+                    valores de reemplazo</em>. El archivo se regenera con
+                    <code>python scripts/refresh_data.py</code>.
                     <br><span>Detalle: <code id="bannerErrorDetalle">&mdash;</code></span>
                 </div>
             </div>

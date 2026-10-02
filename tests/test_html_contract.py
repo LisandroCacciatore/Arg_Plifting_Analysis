@@ -114,6 +114,30 @@ def test_los_elementos_con_hidden_tienen_regla_que_los_oculte():
         f"{{ display: none; }}`")
 
 
+def test_la_prosa_de_la_pagina_no_usa_tildes():
+    """Convencion del proyecto: la prosa de index.html va sin tildes ni enie.
+
+    La pagina original (925 palabras visibles) tiene cero letras acentuadas. Es
+    una decision deliberada, no un descuido. Se rompe con facilidad al agregar
+    copy nuevo: le paso al banner de error, que quedo escrito con tildes y en
+    voseo dentro de un sitio que no usa ni una cosa ni la otra.
+
+    No se prohibe todo lo no-ASCII: el <title> lleva un `·` y el diagrama de
+    arquitectura usa emoji como iconos. Se prohiben solo las letras acentuadas.
+    """
+    ACENTOS = "áéíóúüñÁÉÍÓÚÜÑ"
+    problemas = []
+    for n, linea in enumerate(_html().split("\n"), 1):
+        hallados = sorted({c for c in linea if c in ACENTOS})
+        if hallados:
+            problemas.append(f"L{n} {''.join(hallados)}: {linea.strip()[:70]}")
+
+    assert not problemas, (
+        "index.html usa tildes donde el proyecto va sin ellas. "
+        "Escribi la prosa en ASCII (la pagina ya hace 'Analisis', 'participacion', "
+        "'unico'):\n  " + "\n  ".join(problemas))
+
+
 def test_kpis_tienen_id_y_valor_numerico():
     """El HTML trae un valor de arranque; debe ser numérico, nunca un placeholder."""
     html = _html()
