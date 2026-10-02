@@ -28,8 +28,8 @@ fi
 mkdir -p "$TMP"
 
 # Marcadores del HTML: deben ESTAR presentes, y los obsoletos NO.
-DEBE_ESTAR=("810 MB" "3,66 M de filas" "11 queries")
-NO_DEBE_ESTAR=("~700 MB" "10 queries que" "function formatNum" "getDatosMuestra")
+DEBE_ESTAR=("810 MB" "3,66 M de filas" "11 queries" "bannerError")
+NO_DEBE_ESTAR=("~700 MB" "10 queries que" "function formatNum" "function getDatosMuestra")
 
 fallo=0
 

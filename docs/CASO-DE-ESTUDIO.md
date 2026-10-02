@@ -221,6 +221,12 @@ escribiendo: se cierra con un check.
 se vea vacía durante el desarrollo. Si sobreviven al desarrollo, se convierten en el
 defecto más peligroso del sistema: parecen datos.
 
+Por eso los eliminé del proyecto, no los dejé "por las dudas". Hoy, si `data.json` no
+carga, el dashboard no dibuja **nada**: no instancia un solo gráfico, no escribe un solo
+KPI, oculta los bloques de datos y muestra un banner con el motivo. Una falla visible es
+preferible a un dato falso, siempre. Hay cinco pruebas que fijan ese contrato, incluida
+una que simula un fallo de red y verifica que no quede ningún gráfico dibujado.
+
 ## 9. Cómo comprobarlo
 
 Todo lo que afirma este documento es reproducible:

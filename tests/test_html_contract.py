@@ -84,7 +84,37 @@ def test_el_filtro_temporal_tiene_sus_botones():
     assert len(activos) == 1, "debe haber exactamente un botón activo por defecto"
 
 
-def test_los_kpi_tienen_valor_numerico():
+def test_los_elementos_con_hidden_tienen_regla_que_los_oculte():
+    """Un `display:` de autor pisa el `[hidden] { display: none }` del navegador.
+
+    Si un elemento trae el atributo `hidden` y su clase define un `display:`, el
+    elemento se ve igual. Hace falta un override explícito `.clase[hidden]`.
+    Es un bug clásico y silencioso: el elemento aparece cuando debería estar
+    escondido. Le pasó al banner de error de este proyecto.
+    """
+    html = _html()
+    problemas = []
+
+    for tag in re.findall(r"<[a-z]+[^>]*\bhidden\b[^>]*>", html):
+        clases = re.search(r'class="([^"]+)"', tag)
+        if not clases:
+            continue
+        for clase in clases.group(1).split():
+            regla = re.search(rf"\.{re.escape(clase)}\s*\{{([^}}]*)\}}", html)
+            if not regla or not re.search(r"display\s*:", regla.group(1)):
+                continue          # sin `display:` propio, `hidden` funciona
+            # El `{` al final es imprescindible: sin él, `.clase[hidden]` matchea
+            # como prefijo de `.clase[hidden]-algo` y el test pasa en falso.
+            if not re.search(rf"\.{re.escape(clase)}\[hidden\]\s*\{{", html):
+                problemas.append(clase)
+
+    assert not problemas, (
+        f"estas clases traen `hidden` pero su `display:` lo pisa, así que se "
+        f"verían siempre: {sorted(set(problemas))}. Agregá `.clase[hidden] "
+        f"{{ display: none; }}`")
+
+
+def test_kpis_tienen_id_y_valor_numerico():
     """El HTML trae un valor de arranque; debe ser numérico, nunca un placeholder."""
     html = _html()
     for kpi in ("kpiAtletas", "kpiParticipaciones", "kpiPromedio"):

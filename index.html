@@ -242,20 +242,46 @@
             line-height: 1.5;
         }
 
-        .sample-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            padding: 0.35rem 1rem;
-            background: rgba(234, 179, 8, 0.12);
-            border: 1px solid rgba(234, 179, 8, 0.35);
-            color: #fbbf24;
-            border-radius: 50px;
-            font-size: 0.8rem;
-            font-weight: 600;
+        /* Estado de error: si data.json no carga, no se presenta ningún dato.
+           El JS marca <body> con .sin-datos y muestra este banner. */
+        .error-banner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
             margin-bottom: 1.5rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 10px;
+            color: #fca5a5;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .error-banner code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        /* `display: flex` de arriba pisa el `[hidden] { display: none }` del
+           user-agent (los estilos de autor ganan sobre los del navegador), así
+           que el banner se vería SIEMPRE, incluso con los datos cargados. Hace
+           falta declararlo explícitamente. */
+        .error-banner[hidden] {
+            display: none;
+        }
+
+        /* Con .sin-datos los bloques que solo tienen sentido con datos reales
+           se ocultan: no se muestran números que parezcan datos. El banner de
+           origen también, porque afirmaría un dashboard que no se pudo armar. */
+        body.sin-datos .kpi-row,
+        body.sin-datos .chart-grid,
+        body.sin-datos .bar-list,
+        body.sin-datos .status-grid,
+        body.sin-datos .looker-pending-banner {
+            display: none;
         }
 
         .looker-pending-banner {
@@ -886,6 +912,20 @@
                         target="_blank">OpenPowerlifting</a>). Los valores se regeneran con
                     <code>scripts/refresh_data.py</code>. Ultima actualizacion:
                     <strong><span id="dataFecha">&mdash;</span></strong></div>
+            </div>
+
+            <!-- Visible solo si data.json no carga. El dashboard no tiene datos
+                 de reemplazo, así que sin datos reales se muestra esto y nada más. -->
+            <div class="error-banner" id="bannerError" hidden role="alert">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div>
+                    <strong>No se pudieron cargar los datos del dashboard.</strong><br>
+                    <code>assets/data/data.json</code> no respondió, así que no se
+                    muestra ningún gráfico ni indicador: <em>este proyecto no usa
+                    valores de reemplazo</em>. Regenerá el archivo con
+                    <code>python scripts/refresh_data.py</code> y recargá la página.
+                    <br><span>Detalle: <code id="bannerErrorDetalle">&mdash;</code></span>
+                </div>
             </div>
 
             <div class="kpi-row">

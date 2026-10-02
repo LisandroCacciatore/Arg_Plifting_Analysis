@@ -27,7 +27,7 @@ export const CANVAS_ESPERADOS = [
   'chartTiempoParticipaciones', 'chartTiempoAtletas', 'chartTiempoFederaciones',
 ];
 
-export async function ejecutarPagina() {
+export async function ejecutarPagina(opciones = {}) {
   const html = fs.readFileSync(HTML, 'utf8');
   const appjs = fs.readFileSync(APP_JS, 'utf8');
   const datos = JSON.parse(fs.readFileSync(DATA_JSON, 'utf8'));
@@ -103,6 +103,7 @@ export async function ejecutarPagina() {
   const sandbox = {
     document: {
       title: 'test',
+      body: getEl('body'),
       addEventListener: (ev, fn) => { if (ev === 'DOMContentLoaded') onDomReady = fn; },
       getElementById: getEl,
       querySelector: () => crearNodo('_q'),
@@ -121,7 +122,15 @@ export async function ejecutarPagina() {
       observe() { this.cb([{ isIntersecting: true }], this); }
       disconnect() {}
     },
-    fetch: async () => ({ ok: true, status: 200, json: async () => datos }),
+    // Con opciones.fetchFalla se simula que data.json no responde, para poder
+    // testear que el dashboard NO muestre datos de reemplazo.
+    fetch: async () => {
+      if (opciones.fetchFalla) throw new Error('fallo de red simulado');
+      if (opciones.fetchStatus && opciones.fetchStatus !== 200) {
+        return { ok: false, status: opciones.fetchStatus, json: async () => ({}) };
+      }
+      return { ok: true, status: 200, json: async () => datos };
+    },
     console: {
       log() {},
       warn: (...a) => avisos.push('warn: ' + a.join(' ')),
@@ -141,7 +150,7 @@ export async function ejecutarPagina() {
   }
 
   return {
-    graficos, nodos, datos, errores, avisos, botones, inline, html,
+    graficos, nodos, datos, errores, avisos, botones, inline, html, appjs,
     rafCalls: () => rafCalls,
     // Las funciones declaradas con `function` en un script clásico quedan como
     // globales del contexto; se exponen para poder testearlas directamente.

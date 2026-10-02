@@ -233,7 +233,7 @@ solo lectura y no tiene permiso de borrado, a propósito.
 | 7 | ~~LICENSE~~ **hecho** — MIT. La página declaraba "open-source" sin licencia | ✅ |
 | 8 | ~~Escribir el caso de estudio~~ **hecho** — `docs/CASO-DE-ESTUDIO.md` | ✅ |
 | 9 | ~~Confirmar si existe el bucket de Cloud Storage~~ **resuelto** — `powerlifting-data-raw` existe (HTTP 401 sin credenciales) | ✅ |
-| 10 | Decidir qué hacer con `getDatosMuestra()` en `app.js`: es el último resto de datos de muestra en el código | Baja |
+| 10 | ~~Decidir qué hacer con `getDatosMuestra()`~~ **hecho 2026-10-02** — eliminado. Sin datos reales el dashboard no dibuja nada: muestra un banner de error y oculta los bloques de datos. 5 tests nuevos | ✅ |
 
 ---
 

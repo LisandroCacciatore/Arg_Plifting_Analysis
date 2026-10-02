@@ -185,9 +185,56 @@ test('la fecha de actualización viene de data.json', () => {
   assert.equal(nodos.dataFecha?.textContent, datos._meta.ultima_actualizacion);
 });
 
-test('se usaron datos reales, no el fallback de muestra', () => {
-  const muestra = Number(3847).toLocaleString('es-AR');
-  assert.notEqual(nodos.kpiAtletas?.textContent, muestra,
-    'el dashboard cayó en getDatosMuestra()');
+test('se usaron datos reales, no datos de reemplazo', () => {
+  assert.equal(nodos.kpiAtletas?.textContent,
+    Number(datos.q1_volumen.atletas_unicos).toLocaleString('es-AR'));
   assert.equal(datos.q1_volumen.atletas_unicos, 2521);
+});
+
+// ── Sin datos reales no hay dashboard ────────────────────────────────────────
+// La tesis del caso de estudio: los datos de ejemplo son un pasivo, no una
+// comodidad. Si sobreviven al desarrollo se convierten en el peor defecto del
+// sistema, porque parecen datos. Estas pruebas fijan ese contrato.
+
+test('app.js no tiene datos de reemplazo', () => {
+  assert.ok(!/function\s+getDatosMuestra/.test(pag.appjs),
+    'app.js todavía define getDatosMuestra()');
+  for (const numero of ['3847', '11203', 'APLE', '68.4', '82.1']) {
+    assert.ok(!pag.appjs.includes(numero),
+      `app.js todavía contiene el valor de muestra ${numero}`);
+  }
+  assert.ok(/mostrarErrorDeCarga/.test(pag.appjs),
+    'debe existir un camino de error explícito');
+});
+
+test('si data.json no carga, no se dibuja ABSOLUTAMENTE nada', async () => {
+  const sinDatos = await ejecutarPagina({ fetchFalla: true });
+
+  assert.equal(sinDatos.graficos.length, 0,
+    'sin datos reales no se debe instanciar ningún gráfico');
+  assert.equal(sinDatos.nodos.kpiAtletas, undefined,
+    'sin datos reales no se deben escribir los KPIs');
+  assert.ok(sinDatos.nodos.bannerError, 'debe mostrarse el banner de error');
+  assert.equal(sinDatos.nodos.bannerError.hidden, false,
+    'el banner de error debe quedar visible');
+  assert.ok(sinDatos.nodos.body.classList.contains('sin-datos'),
+    'el body debe marcarse con .sin-datos para ocultar los bloques de datos');
+  assert.ok(sinDatos.errores.length > 0, 'la falla debe registrarse en consola');
+});
+
+test('un HTTP de error tampoco produce datos', async () => {
+  const p = await ejecutarPagina({ fetchStatus: 500 });
+  assert.equal(p.graficos.length, 0, 'un 500 no debe dibujar gráficos');
+  assert.equal(p.nodos.bannerError.hidden, false, 'debe mostrar el error');
+  assert.ok(p.nodos.body.classList.contains('sin-datos'));
+});
+
+test('con datos reales el body NO se marca como sin datos', () => {
+  assert.equal(pag.nodos.body.classList.contains('sin-datos'), false,
+    'los datos cargaron: no debe marcarse el estado de error');
+});
+
+test('el banner de error viene oculto en el HTML', () => {
+  assert.ok(/id="bannerError"[^>]*\bhidden\b/.test(pag.html),
+    'el banner debe traer el atributo hidden para no aparecer con datos OK');
 });
