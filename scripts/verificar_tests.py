@@ -10,7 +10,7 @@ Es la forma ejecutable de la regla de docs/03_Arquitectura/02_Fase_02/
 04_Testing_Capa02.md: "todo test tiene que poder fallar".
 
 Uso:
-    python scripts/verificar_tests.py              verifica las 17 roturas
+    python scripts/verificar_tests.py              verifica las 34 roturas
     python scripts/verificar_tests.py --listar     muestra las roturas sin correr
     python scripts/verificar_tests.py --solo 3     corre solo la rotura numero 3
 
@@ -159,6 +159,133 @@ ROTURAS = [
         PAGINA,
         "        Fuente: <strong>${esc(t.dataset || '')}</strong> (region ${esc(t.ubicacion || '')})",
         "        Fuente: <strong>${esc(t.dataset || '')}</strong>",
+        NODE_PAGINA,
+    ),
+    # ── Niveles con nombre (CD2) ──────────────────────────────────────────
+    (
+        "Elite deja de empezar en el percentil 80: los quintos se rompen",
+        COMPARADOR,
+        "  { nombre: 'Elite', desde: 80, hasta: 100 },",
+        "  { nombre: 'Elite', desde: 60, hasta: 100 },",
+        NODE_COMPARADOR,
+    ),
+    (
+        "nivelDe corta por arriba del borde, y el 20 exacto cae en dos bandas",
+        COMPARADOR,
+        "    (n) => p >= n.desde && (p < n.hasta || n.hasta === 100));",
+        "    (n) => p > n.desde && p <= n.hasta);",
+        NODE_COMPARADOR,
+    ),
+    (
+        "una cohorte con banda estrena un nivel igual, inventado del punto medio",
+        COMPARADOR,
+        "  const nivel = exacto ? nivelDe(celdaPuntaje.percentil) : null;",
+        "  const nivel = nivelDe(exacto ? celdaPuntaje.percentil : 50);",
+        NODE_COMPARADOR,
+    ),
+    # ── El efecto del peso: el hallazgo ───────────────────────────────────
+    (
+        "el efecto del peso deja de depender del peso",
+        COMPARADOR,
+        "    const r = gDePuntaje(tabla, sexo, p);",
+        "    const r = gDePuntaje(tabla, sexo, peso);",
+        NODE_COMPARADOR,
+    ),
+    (
+        "el delta del peso mas pesado cambia de signo",
+        COMPARADOR,
+        "  mas.delta = redondear(mas.puntaje - actual.puntaje, 1);",
+        "  mas.delta = redondear(actual.puntaje - mas.puntaje, 1);",
+        NODE_COMPARADOR,
+    ),
+    (
+        "la distancia al nivel siguiente pierde los kilos de total",
+        COMPARADOR,
+        "    deltaKg: deltaDots > 0 ? redondear((deltaDots * g) / 500, 1) : 0,",
+        "    deltaKg: 0,",
+        NODE_COMPARADOR,
+    ),
+    (
+        "valorEnPercentil deja de recortar fuera del rango",
+        COMPARADOR,
+        "  if (p <= grilla[0]) return vector[0];",
+        "  if (p <= grilla[0]) return null;",
+        NODE_COMPARADOR,
+    ),
+    (
+        "el efecto del peso inventa el punto que no puede calcular",
+        COMPARADOR,
+        "  if (bajos <= 0) return null;",
+        "  if (false) return null;",
+        NODE_COMPARADOR,
+    ),
+    (
+        "un texto nuevo de la nota del peso lleva tilde",
+        COMPARADOR,
+        "  efectoPesoNota: 'El puntaje divide por una funcion del peso: a igual total, mas peso corporal da menos puntaje.',",
+        "  efectoPesoNota: 'El puntaje divide por una función del peso: a igual total, más peso corporal da menos puntaje.',",
+        NODE_COMPARADOR,
+    ),
+    # ── El medidor vivo ───────────────────────────────────────────────────
+    (
+        # El \n inicial NO es decorativo: 'cajaPeso.hidden = true;' aparece tambien
+        # en pintarPeso con mas sangria, y sin el prefijo la rotura se aplicaba a la
+        # ocurrencia equivocada — ninguna test la miraba y la suite quedaba verde.
+        # Con el \n + la sangria exacta el ancla es unica (y \r\n contiene \n, asi que
+        # funciona igual con finales de linea CRLF).
+        "al ocultarse el medidor, el bloque del peso queda con numeros viejos",
+        PAGINA,
+        "\n    cajaPeso.hidden = true;",
+        "\n    cajaPeso.hidden = false;",
+        NODE_PAGINA,
+    ),
+    (
+        "la marca de la escala deja de seguir al percentil",
+        PAGINA,
+        "    escalaMarca.style.left = `calc(${p}% - 1px)`;",
+        "    escalaMarca.style.left = '0px';",
+        NODE_PAGINA,
+    ),
+    (
+        "ninguna banda de la escala queda resaltada",
+        PAGINA,
+        "class=\"${activo && i === activo.indice ? 'on' : ''}\"",
+        "class=\"\"",
+        NODE_PAGINA,
+    ),
+    (
+        "el resultado deja de mostrar el nivel",
+        PAGINA,
+        "    const nivelLinea = r.nivel",
+        "    const nivelLinea = null",
+        NODE_PAGINA,
+    ),
+    (
+        "el resultado deja de mostrar la distancia al nivel siguiente",
+        PAGINA,
+        "    } else if (r.distancia) {",
+        "    } else if (false) {",
+        NODE_PAGINA,
+    ),
+    (
+        "el medidor inventa un nivel para una cohorte con banda",
+        PAGINA,
+        "      vivoNivel.textContent = 'sin nivel';",
+        "      vivoNivel.textContent = 'Base';",
+        NODE_PAGINA,
+    ),
+    (
+        "el medidor calla que el peso quedo fuera del rango con datos",
+        PAGINA,
+        "    const fueraDeRango = (r.limitaciones || []).includes(C.TEXTOS.pesoFueraDeRango);",
+        "    const fueraDeRango = false;",
+        NODE_PAGINA,
+    ),
+    (
+        "el aviso del peso queda colgado cuando el medidor se oculta",
+        PAGINA,
+        "    vivoAviso.hidden = true;",
+        "    vivoAviso.hidden = false;",
         NODE_PAGINA,
     ),
 ]

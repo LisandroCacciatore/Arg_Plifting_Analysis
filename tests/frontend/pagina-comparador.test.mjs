@@ -26,7 +26,20 @@ const VALORES_INICIALES = {
   'cmp-sexo': 'M', 'cmp-edad': '27', 'cmp-peso': '88',
   'cmp-sentadilla': '220', 'cmp-banco': '140', 'cmp-despegue': '250',
   'cmp-total': '', 'cmp-estado': '', 'cmp-error-lista': '', 'cmp-res': '',
+  // Medidor vivo
+  'cmp-vivo': '', 'cmp-vivo-nivel': '', 'cmp-vivo-nivel-sub': '', 'cmp-vivo-dots': '',
+  'cmp-vivo-perc': '', 'cmp-vivo-perc-sub': '', 'cmp-escala-marca': '', 'cmp-escala-etq': '',
+  'cmp-vivo-aviso': '',
+  'cmp-peso-efecto': '', 'cmp-peso-tit': '', 'cmp-peso-fila': '', 'cmp-peso-nota': '',
 };
+
+/**
+ * Elementos que en el HTML estático arrancan con el atributo `hidden`.
+ *
+ * El stub los marca como ocultos para que sea fiel: si no, un test podría pasar
+ * porque el nodo nunca se ocultó, en vez de porque el JS lo ocultó.
+ */
+const OCULTOS_INICIALES = ['cmp-vivo', 'cmp-vivo-aviso', 'cmp-peso-efecto', 'cmp-error', 'cmp-res'];
 
 /**
  * Nodo simulado.
@@ -43,6 +56,7 @@ function crearNodo(id) {
     textContent: '',
     hidden: false,
     dataset: {},
+    style: {},
     _listeners: {},
     _html: '',
     get innerHTML() { return this._html; },
@@ -75,6 +89,8 @@ async function ejecutarPagina(opciones = {}) {
 
   // Precargar los nodos del formulario, para que existan antes de correr el JS.
   for (const id of Object.keys(VALORES_INICIALES)) getEl(id);
+  // Fiel al HTML estático: estos arrancan con el atributo `hidden`.
+  for (const id of OCULTOS_INICIALES) getEl(id).hidden = true;
 
   const sandbox = {
     document: { getElementById: getEl, addEventListener() {} },
@@ -239,6 +255,207 @@ test('corregir la entrada limpia el error anterior', async () => {
   p.enviar();
   assert.equal(p.el('cmp-error').hidden, true, 'el error anterior quedó pegado');
   assert.notEqual(p.res(), '', 'no se renderizó el resultado corregido');
+});
+
+// ── El medidor vivo ───────────────────────────────────────────────────────────
+test('el medidor aparece al cargar, con nivel, puntaje y percentil reales', async () => {
+  const p = await ejecutarPagina();
+  assert.equal(p.el('cmp-vivo').hidden, false,
+    'el medidor deberia estar visible con el perfil por defecto valido');
+  assert.equal(p.el('cmp-vivo-nivel').textContent, 'Intermedio',
+    `nivel inesperado: ${p.el('cmp-vivo-nivel').textContent}`);
+  assert.match(p.el('cmp-vivo-dots').textContent, /399[,.]0/,
+    `puntaje inesperado: ${p.el('cmp-vivo-dots').textContent}`);
+  assert.match(p.el('cmp-vivo-perc').textContent, /59[,.]2/,
+    `percentil inesperado: ${p.el('cmp-vivo-perc').textContent}`);
+  // El n tiene que ir al lado del nivel: la etiqueta nunca viaja sola
+  assert.match(p.el('cmp-vivo-nivel-sub').textContent, /140\.561/,
+    'el nivel deberia mostrar el n de la cohorte al lado');
+});
+
+test('el peso es el unico campo que ahora mueve algo: cambia el puntaje en vivo', async () => {
+  const p = await ejecutarPagina();
+  const antes = p.el('cmp-vivo-dots').textContent;
+
+  p.el('cmp-peso').value = '98';
+  p.el('cmp-peso').dispatch('input');
+
+  const despues = p.el('cmp-vivo-dots').textContent;
+  assert.notEqual(antes, despues,
+    'cambiar el peso con el mismo total tiene que cambiar el puntaje');
+  assert.match(despues, /378[,.]8/,
+    `a 98 kg el puntaje deberia ser 378,8; dio ${despues}`);
+  assert.equal(p.el('cmp-total').value, '610,0 kg',
+    'el total no deberia cambiar: solo se movio el peso');
+});
+
+test('la marca de la escala sigue al percentil', async () => {
+  const p = await ejecutarPagina();
+  const marca = p.el('cmp-escala-marca');
+  assert.match(marca.style.left, /59/, `la marca deberia estar en ~59%: ${marca.style.left}`);
+
+  // Un peso mucho mayor baja el percentil y la marca se corre a la izquierda
+  p.el('cmp-peso').value = '120';
+  p.el('cmp-peso').dispatch('input');
+  const nuevo = parseFloat(p.el('cmp-escala-marca').style.left.replace(/[^\d.]/g, ''));
+  assert.ok(nuevo < 59, `con mas peso la marca deberia retroceder, fue a ${nuevo}`);
+});
+
+test('la escala dibuja los cinco niveles y resalta el que toca', async () => {
+  const p = await ejecutarPagina();
+  const etq = p.el('cmp-escala-etq').innerHTML;
+  for (const n of p.datos._meta && ['Inicial', 'Base', 'Intermedio', 'Avanzado', 'Elite']) {
+    assert.ok(etq.includes(n), `falta la etiqueta de nivel ${n}`);
+  }
+  assert.equal((etq.match(/class="on"/g) || []).length, 1,
+    'tiene que haber exactamente una banda resaltada');
+  // Con percentil 59,2 la resaltada es Intermedio: se fija el par exacto
+  // atributo+nombre para no depender de un indexOf que matchearia por accidente.
+  assert.match(etq, /class="on">Intermedio</,
+    `la banda resaltada deberia ser Intermedio: ${etq}`);
+  assert.ok(!/class="on">(Inicial|Base|Avanzado|Elite)</.test(etq),
+    'no deberia haber ninguna otra banda resaltada');
+});
+
+test('el bloque del peso muestra los tres puntos con su delta', async () => {
+  const p = await ejecutarPagina();
+  assert.equal(p.el('cmp-peso-efecto').hidden, false, 'el bloque del peso deberia estar visible');
+  const fila = p.el('cmp-peso-fila').innerHTML;
+  assert.match(fila, /78[,.]0 kg/);
+  assert.match(fila, /88[,.]0 kg/);
+  assert.match(fila, /98[,.]0 kg/);
+  assert.match(fila, /427[,.]0/);
+  assert.match(fila, /399[,.]0/);
+  assert.match(fila, /378[,.]8/);
+  // Los deltas: mas liviano suma, mas pesado resta
+  assert.ok(fila.includes('positivo'), 'el punto liviano deberia marcar delta positivo');
+  assert.ok(fila.includes('negativo'), 'el punto pesado deberia marcar delta negativo');
+  assert.ok(fila.includes('+28'), `falta el delta de 78 kg: ${fila.slice(0, 400)}`);
+  assert.equal(p.el('cmp-peso-efecto').hidden, false);
+});
+
+test('el medidor se oculta cuando la entrada no alcanza, y vuelve al corregirla', async () => {
+  const p = await ejecutarPagina();
+  assert.equal(p.el('cmp-vivo').hidden, false);
+
+  p.el('cmp-peso').value = '';
+  p.el('cmp-peso').dispatch('input');
+  assert.equal(p.el('cmp-vivo').hidden, true,
+    'con el peso vacio no deberia mostrarse un numero a medio calcular');
+  assert.equal(p.el('cmp-peso-efecto').hidden, true, 'el bloque del peso tambien se oculta');
+
+  p.el('cmp-peso').value = '88';
+  p.el('cmp-peso').dispatch('input');
+  assert.equal(p.el('cmp-vivo').hidden, false, 'al corregir deberia volver');
+  assert.equal(p.el('cmp-peso-efecto').hidden, false);
+});
+
+test('el medidor no se muestra si los datos no cargaron', async () => {
+  const p = await ejecutarPagina({ fetchFalla: true });
+  assert.equal(p.el('cmp-vivo').hidden, true,
+    'sin cohortes.json no hay medidor: no se inventa una cohorte');
+});
+
+test('el resultado muestra el nivel y la distancia en kg de total', async () => {
+  const p = await ejecutarPagina();
+  p.enviar();
+  const out = p.res();
+  assert.match(out, /nivel-nombre">Intermedio/, 'el nivel deberia encabezar el bloque');
+  assert.match(out, /Faltan <strong>[\d,.]+ kg de total<\/strong>/,
+    `falta la distancia en kg de total:\n${out.slice(0, 700)}`);
+  assert.match(out, /no de un corte elegido a mano/,
+    'el bloque deberia aclarar de donde sale el nivel');
+});
+
+test('en el nivel mas alto el resultado dice que no hay nivel siguiente', async () => {
+  const p = await ejecutarPagina();
+  p.el('cmp-sentadilla').value = '330';
+  p.el('cmp-banco').value = '240';
+  p.el('cmp-despegue').value = '330';
+  for (const id of ['cmp-sentadilla', 'cmp-banco', 'cmp-despegue']) p.el(id).dispatch('input');
+  assert.equal(p.el('cmp-vivo-nivel').textContent, 'Elite');
+  p.enviar();
+  assert.match(p.res(), /Ya esta en el nivel mas alto/);
+  assert.ok(!/Faltan <strong>/.test(p.res()), 'no deberia prometer un nivel que no existe');
+});
+
+test('con una cohorte chica el medidor no inventa un nivel', async () => {
+  const p = await ejecutarPagina();
+  const delgada = Object.entries(p.datos.celdas)
+    .find(([k, v]) => k.startsWith('nacional') && v.n >= 10 && v.n < 30);
+  assert.ok(delgada);
+  const [, vent, sexo, edad, equipo] = delgada[0].split('|');
+  const edades = { '13-15': 14, '16-17': 16, '18-19': 18, '20-23': 21, '24-34': 27,
+                   '35-39': 37, '40-44': 42, '45-49': 47, '50-54': 52, '55-59': 57,
+                   '60-64': 62, '65-69': 67, '70-74': 72, '75-79': 77 };
+  p.el('cmp-sexo').value = sexo;
+  p.el('cmp-edad').value = String(edades[edad] ?? 27);
+  p.el('cmp-equipo').value = equipo;
+  p.el('cmp-alcance').value = 'nacional';
+  p.el('cmp-ventana').value = vent;
+  p.el('cmp-alcance').dispatch('change');
+
+  assert.equal(p.el('cmp-vivo-nivel').textContent, 'sin nivel',
+    'una cohorte con banda no sostiene un nivel con nombre');
+  assert.match(p.el('cmp-vivo-nivel-sub').textContent, /banda/);
+  assert.equal(p.el('cmp-peso-efecto').hidden, false,
+    'el efecto del peso no depende de la cohorte: sigue siendo valido');
+});
+
+test('el medidor no muestra un numero exacto cuando la cohorte es chica', async () => {
+  const p = await ejecutarPagina();
+  const delgada = Object.entries(p.datos.celdas)
+    .find(([k, v]) => k.startsWith('nacional') && v.n >= 10 && v.n < 30);
+  const [, vent, sexo, edad, equipo] = delgada[0].split('|');
+  const edades = { '13-15': 14, '16-17': 16, '18-19': 18, '20-23': 21, '24-34': 27,
+                   '35-39': 37, '40-44': 42, '45-49': 47, '50-54': 52, '55-59': 57,
+                   '60-64': 62, '65-69': 67, '70-74': 72, '75-79': 77 };
+  p.el('cmp-sexo').value = sexo;
+  p.el('cmp-edad').value = String(edades[edad] ?? 27);
+  p.el('cmp-equipo').value = equipo;
+  p.el('cmp-alcance').value = 'nacional';
+  p.el('cmp-ventana').value = vent;
+  p.el('cmp-alcance').dispatch('change');
+
+  const perc = p.el('cmp-vivo-perc').textContent;
+  assert.match(perc, /-/, `con banda el percentil deberia ser un rango, dio ${perc}`);
+  assert.ok(!/^\d+[,.]\d+%$/.test(perc), `no deberia ser un numero exacto: ${perc}`);
+});
+
+test('si el peso queda fuera del rango con datos, el medidor lo advierte', async () => {
+  const p = await ejecutarPagina();
+  assert.equal(p.el('cmp-vivo-aviso').hidden, true,
+    'con 88 kg no deberia haber aviso: el peso esta dentro del rango con datos');
+
+  // 5 kg pasa la validacion (LIMITES.peso es 400) pero queda FUERA del rango con
+  // datos, asi que la tabla g se clampea al extremo mas cercano y el puntaje sale
+  // de un peso que no es el tipeado. El medidor no puede callarlo.
+  p.el('cmp-peso').value = '5';
+  p.el('cmp-peso').dispatch('input');
+  assert.equal(p.el('cmp-vivo-aviso').hidden, false,
+    'con un peso fuera del rango el medidor tiene que advertirlo');
+  assert.match(p.el('cmp-vivo-aviso').textContent, /fuera del rango/,
+    `aviso inesperado: ${p.el('cmp-vivo-aviso').textContent}`);
+  assert.equal(p.el('cmp-vivo').hidden, false,
+    'el medidor igual muestra el numero: se advierte, no se esconde');
+
+  p.el('cmp-peso').value = '88';
+  p.el('cmp-peso').dispatch('input');
+  assert.equal(p.el('cmp-vivo-aviso').hidden, true,
+    'al volver dentro del rango el aviso se va');
+});
+
+test('el aviso tambien se va cuando el medidor entero se oculta', async () => {
+  const p = await ejecutarPagina();
+  p.el('cmp-peso').value = '5';
+  p.el('cmp-peso').dispatch('input');
+  assert.equal(p.el('cmp-vivo-aviso').hidden, false);
+
+  p.el('cmp-peso').value = '';
+  p.el('cmp-peso').dispatch('input');
+  assert.equal(p.el('cmp-vivo').hidden, true);
+  assert.equal(p.el('cmp-vivo-aviso').hidden, true,
+    'no puede quedar un aviso colgado sin el medidor que lo explica');
 });
 
 // ── La cohorte pedida manda ────────────────────────────────────────────────

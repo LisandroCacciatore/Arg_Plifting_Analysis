@@ -8,11 +8,13 @@
 | 02 | [Criterio de comparabilidad](02_Criterio_Comparabilidad.md) | ¿Qué hace que una comparación sea válida o basura? |
 | 03 | [Reglas de cohorte](03_Reglas_Cohorte.md) | ¿Cómo se construye la cohorte y qué pasa si es fina? |
 | 04 | [Testing de la capa](04_Testing_Capa02.md) | ¿Qué tiene que cumplir la medición antes de mostrarse? |
+| 05 | [Gamificación de la capa](05_Gamificacion.md) | ¿Cómo se presenta la medición sin deformarla, y por qué así? |
 
 **Regla de la fase:** nada se implementa si no está documentado acá.
 
-**Estado:** diseño. Sin implementación. La Capa 01 (descriptiva) ya está en
-producción; esta capa es aditiva y no la modifica.
+**Estado:** implementada y verificada. La Capa 01 (descriptiva) está en
+producción; esta capa es aditiva y no la modifica. Lo que falta —la Capa D, con
+gate— está declarado como pendiente en el documento 01.
 
 ## Qué la separa de la Capa 01
 

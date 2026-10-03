@@ -54,6 +54,21 @@
   const estado = el('cmp-estado');
   const pie = el('cmp-pie');
 
+  // Medidor vivo
+  const cajaVivo = el('cmp-vivo');
+  const vivoNivel = el('cmp-vivo-nivel');
+  const vivoNivelSub = el('cmp-vivo-nivel-sub');
+  const vivoDots = el('cmp-vivo-dots');
+  const vivoPerc = el('cmp-vivo-perc');
+  const vivoPercSub = el('cmp-vivo-perc-sub');
+  const escalaMarca = el('cmp-escala-marca');
+  const escalaEtq = el('cmp-escala-etq');
+  const vivoAviso = el('cmp-vivo-aviso');
+  const cajaPeso = el('cmp-peso-efecto');
+  const pesoTit = el('cmp-peso-tit');
+  const pesoFila = el('cmp-peso-fila');
+  const pesoNota = el('cmp-peso-nota');
+
   let DATOS = null;
   let ultimoPerfil = null;
 
@@ -123,9 +138,14 @@
       .sort((a, b) => (meta.ventanas[b] || '').localeCompare(meta.ventanas[a] || ''))[0];
     if (masReciente) selVentana.value = masReciente;
 
-    actualizarTotal();
-    for (const i of [inpSentadilla, inpBanco, inpDespegue]) {
-      i.addEventListener('input', actualizarTotal);
+    // Todos los campos alimentan el medidor vivo y el total. Un solo handler para
+    // que no puedan desincronizarse.
+    alCambiar();
+    for (const campo of [inpPeso, inpEdad, inpSentadilla, inpBanco, inpDespegue]) {
+      campo.addEventListener('input', alCambiar);
+    }
+    for (const sel of [selSexo, selEquipo, selAlcance, selVentana]) {
+      sel.addEventListener('change', alCambiar);
     }
 
     const t = DATOS._meta;
@@ -141,6 +161,121 @@
     const d = num(inpDespegue.value);
     const ok = [s, b, d].every((v) => Number.isFinite(v) && v > 0);
     inpTotal.value = ok ? fmt(s + b + d, 1) + ' kg' : '';
+  }
+
+  // ── Medidor vivo ──────────────────────────────────────────────────────────
+  const rotulo = (mapa, v) => (mapa[v] || v);
+
+  /** Coloca la marca en el percentil y resalta la banda que le toca. */
+  function pintarEscala(percentil) {
+    const p = Math.max(0, Math.min(100, percentil));
+    escalaMarca.style.left = `calc(${p}% - 1px)`;
+    const activo = C.nivelDe(percentil);
+    escalaEtq.innerHTML = C.NIVELES
+      .map((n, i) => `<span class="${activo && i === activo.indice ? 'on' : ''}">${esc(n.nombre)}</span>`)
+      .join('');
+  }
+
+  /**
+   * El efecto del peso: tres puntos con el mismo total.
+   *
+   * Es el hallazgo del proyecto puesto donde se ve. Si el motor devuelve null
+   * —peso demasiado bajo para restarle 10 kg, o tabla ausente— el bloque se
+   * oculta y NO se dibuja el punto que falta.
+   */
+  function pintarPeso(e) {
+    if (!e) {
+      cajaPeso.hidden = true;
+      return;
+    }
+    pesoTit.textContent = 'El mismo total, distinto peso corporal';
+    const punto = (p, esActual) => {
+      const clase = p.delta == null ? '' : (p.delta > 0 ? 'positivo' : 'negativo');
+      const delta = p.delta == null ? ''
+        : `<div class="delta ${clase}">${p.delta > 0 ? '+' : ''}${fmt(p.delta, 1)}</div>`;
+      return `<div class="cmp-peso-punto${esActual ? ' actual' : ''}">` +
+        `<div class="kg">${fmt(p.peso, 1)} kg</div>` +
+        `<div class="dots">${fmt(p.puntaje, 1)}</div>${delta}</div>`;
+    };
+    pesoFila.innerHTML = punto(e.menos) + punto(e.actual, true) + punto(e.mas);
+    pesoNota.textContent = C.TEXTOS.efectoPesoNota;
+    cajaPeso.hidden = false;
+  }
+
+  /**
+   * Oculta el medidor vivo y el bloque del peso.
+   *
+   * Van juntos a proposito: si el medidor dice "sin datos" y el bloque del peso
+   * sigue mostrando los numeros del perfil anterior, el panel se contradice.
+   * Es una sola funcion justamente para que no haya dos lugares que se oculten
+   * por caminos distintos (y dos tests distintos cubriendo el mismo hecho).
+   */
+  function ocultarMedidor() {
+    cajaVivo.hidden = true;
+    cajaPeso.hidden = true;
+    vivoAviso.hidden = true;
+  }
+
+  /**
+   * Repinta el medidor con el perfil tal como esta ahora.
+   *
+   * Corre el comparador completo en cada tecla. Es barato: todo vive en memoria,
+   * no hay red ni BigQuery. Si la entrada todavia no alcanza para comparar
+   * (un campo vacio mientras se tipea), el medidor se oculta en vez de mostrar
+   * un numero a medio calcular.
+   */
+  function actualizarVivo() {
+    if (!DATOS) {
+      ocultarMedidor();
+      return;
+    }
+    const r = C.comparar(DATOS, leerPerfil());
+    if (!r.ok) {
+      ocultarMedidor();
+      return;
+    }
+
+    if (r.nivel) {
+      vivoNivel.textContent = r.nivel.nombre;
+      vivoNivelSub.textContent =
+        `percentil ${fmt(r.nivel.percentil, 1)} · n = ${fmt(r.cohorte.n)}`;
+    } else {
+      vivoNivel.textContent = 'sin nivel';
+      vivoNivelSub.textContent = r.puntaje.banda
+        ? `banda ${fmt(r.puntaje.banda[0])}-${fmt(r.puntaje.banda[1])} · n = ${fmt(r.cohorte.n)}`
+        : 'sin datos suficientes';
+    }
+
+    vivoDots.textContent = r.puntaje.valor == null ? 'sin dato' : fmt(r.puntaje.valor, 1);
+    vivoPerc.textContent = r.puntaje.percentil != null
+      ? `${fmt(r.puntaje.percentil, 1)}%`
+      : (r.puntaje.banda ? `${fmt(r.puntaje.banda[0])}-${fmt(r.puntaje.banda[1])}%` : 'sin dato');
+    vivoPercSub.textContent = r.cohorte.esLaElegida
+      ? `${rotulo(ETIQUETAS.alcance, r.cohorte.alcance)} · ${rotulo(ETIQUETAS.ventana, r.cohorte.ventana)}`
+      : `se uso ${rotulo(ETIQUETAS.alcance, r.cohorte.alcance)}: la pedida tenia pocos casos`;
+
+    // Si el peso quedo fuera del rango con datos, el puntaje se calculo con el
+    // extremo mas cercano de la tabla g — y el motor YA lo declara en sus
+    // limitaciones. El medidor tiene que repetirlo: mostrar "Elite, percentil 100"
+    // para un peso de 5 kg, sin la salvedad, seria afirmar un numero que no aplica
+    // a ese peso. Ningun numero viaja sin su limitacion.
+    //
+    // Se lee de `limitaciones` y no de `efectoPeso.actual.clampeado` porque con un
+    // peso muy bajo el efecto del peso es null (no hay peso - 10 que calcular), y
+    // ahi el aviso se perderia justo cuando mas hace falta.
+    const fueraDeRango = (r.limitaciones || []).includes(C.TEXTOS.pesoFueraDeRango);
+    vivoAviso.textContent = fueraDeRango ? C.TEXTOS.pesoFueraDeRango : '';
+    vivoAviso.hidden = !fueraDeRango;
+
+    if (r.puntaje.percentil != null) pintarEscala(r.puntaje.percentil);
+    pintarPeso(r.efectoPeso);
+    cajaVivo.hidden = false;
+  }
+
+  /** Un solo handler para todos los campos: el medidor y el total se mueven juntos. */
+  function alCambiar() {
+    actualizarTotal();
+    actualizarVivo();
   }
 
   function leerPerfil() {
@@ -185,6 +320,28 @@
 
   function bloquePuntaje(r) {
     const p = r.puntaje;
+
+    // El nivel con nombre encabeza el bloque: es el win-state. Pero NUNCA va solo
+    // — el percentil y el n van al lado, porque con quintos iguales "Elite" es el
+    // 20% de arriba y la etiqueta no puede afirmar una rareza que no se midio.
+    const nivelLinea = r.nivel
+      ? `<div class="nivel-linea">
+           <span class="nivel-nombre">${esc(r.nivel.nombre)}</span>
+           ${badgeN(r.cohorte.n, r.cohorte.calidad)}
+         </div>`
+      : '';
+
+    let distancia = '';
+    if (r.distancia && r.distancia.esTope) {
+      distancia = `<div class="nivel-dist">${esc(C.TEXTOS.nivelTope)}</div>`;
+    } else if (r.distancia) {
+      // En kg de TOTAL, no de un levantamiento puntual: decir "te faltan 9 kg de
+      // banco" seria una prescripcion, y la capa no prescribe.
+      distancia = `<div class="nivel-dist">Faltan <strong>${fmt(r.distancia.deltaKg, 1)} kg de total</strong>
+        para el nivel ${esc(r.distancia.nivelSiguiente)}, que empieza en
+        Dots ${fmt(r.distancia.dotsCorte, 1)} (percentil ${fmt(r.distancia.percentilCorte)}).</div>`;
+    }
+
     const valor = p.percentil != null
       ? `<div class="cmp-perc">${fmt(p.percentil, 1)}<span class="u">de percentil</span></div>`
       : (p.banda
@@ -193,12 +350,15 @@
 
     return `
       <div class="cmp-bloque">
-        <h3><i class="fa-solid fa-chart-simple"></i> El puntaje</h3>
+        <h3><i class="fa-solid fa-chart-simple"></i> Donde esta parado</h3>
+        ${nivelLinea}
         ${valor}
+        ${distancia}
         <div class="cmp-def" style="margin-top:.6rem">
           Dots reconstruido: <strong>${p.valor == null ? 'sin dato' : fmt(p.valor, 1)}</strong><br>
           <span style="font-size:.78rem;color:#64748b">El puntaje normaliza por peso corporal, asi que
-          permite comparar entre categorias. No se pide el Dots: se reconstruye desde el peso y el total.</span>
+          permite comparar entre categorias. No se pide el Dots: se reconstruye desde el peso y el total.
+          El nivel sale del percentil medido, no de un corte elegido a mano.</span>
         </div>
       </div>`;
   }

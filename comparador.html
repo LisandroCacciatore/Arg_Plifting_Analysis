@@ -293,9 +293,220 @@
             color: var(--text-primary);
         }
 
+        /* ── Medidor vivo ────────────────────────────────────────────────────
+           Es el unico lugar donde el peso corporal produce una reaccion visible.
+           Antes se escribia y no pasaba nada, y es el campo que la gente mira
+           primero. Se actualiza a cada tecla, sin red: la tabla g(peso) ya esta
+           en cohortes.json y el calculo es local. */
+        .cmp-vivo {
+            margin-top: 1.75rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .cmp-vivo[hidden] {
+            display: none;
+        }
+
+        .cmp-vivo-cab {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.1rem;
+        }
+
+        .cmp-vivo-et {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #64748b;
+            font-weight: 700;
+        }
+
+        .cmp-vivo-nivel {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #93c5fd;
+        }
+
+        .cmp-vivo-dots,
+        .cmp-vivo-perc {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            line-height: 1.2;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .cmp-vivo-aviso {
+            margin: 0 0 1rem;
+            padding: 0.6rem 0.8rem;
+            border-left: 3px solid #f59e0b;
+            background: rgba(245, 158, 11, 0.08);
+            border-radius: 0 6px 6px 0;
+            font-size: 0.75rem;
+            color: #fbbf24;
+            line-height: 1.6;
+        }
+
+        .cmp-vivo-aviso[hidden] {
+            display: none;
+        }
+
+        .cmp-escala {
+            position: relative;
+            height: 34px;
+            margin-bottom: 0.5rem;
+        }
+
+        .cmp-escala-barras {
+            display: flex;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            gap: 2px;
+        }
+
+        .cmp-escala-barras span {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.09);
+        }
+
+        .cmp-escala-marca {
+            position: absolute;
+            top: 14px;
+            width: 2px;
+            height: 20px;
+            background: #38bdf8;
+            border-radius: 1px;
+            transition: left 0.25s ease;
+        }
+
+        .cmp-escala-etq {
+            display: flex;
+            gap: 2px;
+            font-size: 0.62rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .cmp-escala-etq span {
+            flex: 1;
+            text-align: center;
+        }
+
+        .cmp-escala-etq span.on {
+            color: #93c5fd;
+            font-weight: 700;
+        }
+
+        /* El efecto del peso: el hallazgo del proyecto, en el momento en que se
+           mueve el peso. Tres puntos con el mismo total. */
+        .cmp-peso {
+            margin-top: 1.25rem;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            padding: 0.9rem 1rem;
+        }
+
+        .cmp-peso[hidden] {
+            display: none;
+        }
+
+        .cmp-peso-tit {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 0.7rem;
+        }
+
+        .cmp-peso-fila {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+
+        .cmp-peso-punto {
+            text-align: center;
+        }
+
+        .cmp-peso-punto .kg {
+            font-size: 0.72rem;
+            color: #64748b;
+        }
+
+        .cmp-peso-punto .dots {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .cmp-peso-punto .delta {
+            font-size: 0.72rem;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .cmp-peso-punto.actual {
+            border-left: 2px solid rgba(56, 189, 248, 0.5);
+            border-right: 2px solid rgba(56, 189, 248, 0.5);
+        }
+
+        .cmp-peso-punto .delta.positivo {
+            color: #4ade80;
+        }
+
+        .cmp-peso-punto .delta.negativo {
+            color: #f87171;
+        }
+
+        .cmp-peso-nota {
+            font-size: 0.68rem;
+            color: #64748b;
+            line-height: 1.6;
+            margin-top: 0.7rem;
+        }
+
+        .nivel-linea {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.6rem;
+        }
+
+        .nivel-nombre {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: #93c5fd;
+            line-height: 1.1;
+        }
+
+        .nivel-dist {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
         @media (max-width: 640px) {
             .cmp-perc {
                 font-size: 2rem;
+            }
+
+            .cmp-peso-fila {
+                grid-template-columns: 1fr;
+            }
+
+            .cmp-peso-punto.actual {
+                border: none;
+                background: rgba(56, 189, 248, 0.08);
+                border-radius: 6px;
+                padding: 0.4rem 0;
             }
         }
     </style>
@@ -392,6 +603,45 @@
                             <label for="cmp-ventana">Ventana temporal</label>
                             <select id="cmp-ventana"></select>
                             <small>Contra quien se mide: competidores desde esa fecha</small>
+                        </div>
+                    </div>
+
+                    <!-- Medidor vivo: se actualiza a cada tecla, sin red. Es el
+                         unico lugar donde el peso corporal produce una reaccion
+                         visible. Ver docs/03_Arquitectura/02_Fase_02/ -->
+                    <div class="cmp-vivo" id="cmp-vivo" hidden>
+                        <div class="cmp-vivo-cab">
+                            <div class="cmp-field">
+                                <label>Nivel</label>
+                                <div class="cmp-vivo-nivel" id="cmp-vivo-nivel">&mdash;</div>
+                                <div class="cmp-vivo-sub" id="cmp-vivo-nivel-sub"></div>
+                            </div>
+                            <div class="cmp-field">
+                                <label>Puntaje (Dots)</label>
+                                <div class="cmp-vivo-dots" id="cmp-vivo-dots">&mdash;</div>
+                                <div class="cmp-vivo-sub">Se reconstruye desde peso y total</div>
+                            </div>
+                            <div class="cmp-field">
+                                <label>Percentil</label>
+                                <div class="cmp-vivo-perc" id="cmp-vivo-perc">&mdash;</div>
+                                <div class="cmp-vivo-sub" id="cmp-vivo-perc-sub"></div>
+                            </div>
+                        </div>
+
+                        <div class="cmp-vivo-aviso" id="cmp-vivo-aviso" hidden></div>
+
+                        <div class="cmp-escala">
+                            <div class="cmp-escala-barras">
+                                <span></span><span></span><span></span><span></span><span></span>
+                            </div>
+                            <div class="cmp-escala-marca" id="cmp-escala-marca"></div>
+                            <div class="cmp-escala-etq" id="cmp-escala-etq"></div>
+                        </div>
+
+                        <div class="cmp-peso" id="cmp-peso-efecto" hidden>
+                            <div class="cmp-peso-tit" id="cmp-peso-tit"></div>
+                            <div class="cmp-peso-fila" id="cmp-peso-fila"></div>
+                            <div class="cmp-peso-nota" id="cmp-peso-nota"></div>
                         </div>
                     </div>
 

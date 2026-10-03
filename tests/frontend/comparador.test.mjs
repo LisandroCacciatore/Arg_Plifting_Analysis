@@ -422,13 +422,205 @@ test('diagnosticar devuelve sin_datos en vez de romper si la celda no tiene shar
   assert.equal(r.sinDatos, true);
 });
 
+// ── Niveles con nombre (CD2) ────────────────────────────────────────────────
+test('los niveles son cinco particiones iguales que cubren 0-100 sin huecos', () => {
+  const N = M.NIVELES;
+  assert.equal(N.length, 5);
+  assert.equal(N[0].desde, 0);
+  assert.equal(N[N.length - 1].hasta, 100);
+  for (let i = 0; i < N.length; i++) {
+    assert.equal(N[i].hasta - N[i].desde, 20,
+      `la banda ${N[i].nombre} no mide 20 puntos: la division tiene que ser en quintos`);
+    if (i > 0) assert.equal(N[i].desde, N[i - 1].hasta,
+      `hueco o solapamiento entre ${N[i - 1].nombre} y ${N[i].nombre}`);
+  }
+  const nombres = N.map((n) => n.nombre);
+  assert.equal(new Set(nombres).size, nombres.length, 'hay nombres de nivel repetidos');
+  assert.ok(nombres.every((n) => n && n.length > 2));
+});
+
+test('los bordes de los niveles caen sobre la grilla fina (no hay que interpolar)', () => {
+  // Si alguien mueve un borde a un valor que no esta en la grilla, la distancia al
+  // nivel siguiente empezaria a interpolarse en silencio. El test lo avisa.
+  for (const n of M.NIVELES) {
+    for (const borde of [n.desde, n.hasta]) {
+      assert.ok(META.grid_fina.includes(borde),
+        `el borde ${borde} de ${n.nombre} no esta en grid_fina: la distancia al nivel ` +
+        `siguiente dejaria de ser exacta`);
+    }
+  }
+});
+
+test('nivelDe corta por abajo en los bordes, sin ambiguedad', () => {
+  assert.equal(M.nivelDe(0).nombre, 'Inicial');
+  assert.equal(M.nivelDe(19.9).nombre, 'Inicial');
+  assert.equal(M.nivelDe(20).nombre, 'Base', 'el 20 exacto es el primer caso de Base');
+  assert.equal(M.nivelDe(39.9).nombre, 'Base');
+  assert.equal(M.nivelDe(40).nombre, 'Intermedio');
+  assert.equal(M.nivelDe(59.9).nombre, 'Intermedio');
+  assert.equal(M.nivelDe(60).nombre, 'Avanzado');
+  assert.equal(M.nivelDe(80).nombre, 'Elite');
+  assert.equal(M.nivelDe(100).nombre, 'Elite');
+  assert.equal(M.nivelDe(120).nombre, 'Elite', 'un percentil fuera de rango se recorta');
+  assert.equal(M.nivelDe(null), null);
+  assert.equal(M.nivelDe(undefined), null);
+  assert.equal(M.nivelDe(NaN), null);
+});
+
+test('el nombre del nivel nunca puede ir sin el percentil que lo define', () => {
+  // El nivel es una etiqueta derivada. El test fija que se pueda auditar de vuelta:
+  // con quintos iguales, "Elite" es el 20% de arriba y no un 1% implicito.
+  const elite = M.NIVELES.find((n) => n.nombre === 'Elite');
+  assert.equal(elite.desde, 80,
+    'Elite empieza en el percentil 80: es el 20% de arriba, no un 1%. ' +
+    'Si se cambia el corte hay que verificarlo contra una fuente, no elegirlo');
+  const nivel = M.nivelDe(85);
+  assert.equal(nivel.desde, 80);
+  assert.equal(nivel.hasta, 100);
+  assert.equal(nivel.indice, 4);
+});
+
+// ── valorEnPercentil: la inversa de percentilDe ─────────────────────────────
+test('valorEnPercentil es la inversa de percentilDe sobre la grilla', () => {
+  const celda = DATOS.celdas['mundial|desde_2018|M|24-34|Raw'];
+  for (const p of META.grid_fina) {
+    const v = M.valorEnPercentil(celda.dots, META.grid_fina, p);
+    const vuelta = M.percentilDe(v, celda.dots, META.grid_fina);
+    assert.ok(Math.abs(vuelta - p) < 0.01,
+      `percentil ${p}: ida y vuelta dio ${vuelta}`);
+  }
+});
+
+test('valorEnPercentil recorta fuera de rango y devuelve null con entradas rotas', () => {
+  const celda = DATOS.celdas['mundial|desde_2018|M|24-34|Raw'];
+  assert.equal(M.valorEnPercentil(celda.dots, META.grid_fina, -5), celda.dots[0]);
+  assert.equal(M.valorEnPercentil(celda.dots, META.grid_fina, 150),
+    celda.dots[celda.dots.length - 1]);
+  assert.equal(M.valorEnPercentil(null, META.grid_fina, 50), null);
+  assert.equal(M.valorEnPercentil(celda.dots, null, 50), null);
+  assert.equal(M.valorEnPercentil(celda.dots, META.grid_fina, NaN), null);
+  assert.equal(M.valorEnPercentil([1], [0], 50), null);
+});
+
+// ── Distancia al nivel siguiente, en kg de TOTAL ────────────────────────────
+test('la distancia al nivel siguiente se expresa en kg de total y es consistente', () => {
+  const r = M.comparar(DATOS, PERFIL);
+  assert.equal(r.ok, true);
+  assert.ok(r.nivel, 'el perfil por defecto deberia tener nivel');
+  assert.ok(r.distancia, 'deberia haber distancia al nivel siguiente');
+  assert.equal(r.distancia.esTope, false);
+  assert.equal(r.distancia.nivelSiguiente,
+    M.NIVELES[r.nivel.indice + 1].nombre);
+  assert.equal(r.distancia.percentilCorte, r.nivel.hasta);
+
+  // Consistencia: el delta en kg sale del delta en Dots y de la tabla g
+  const g = M.gDePuntaje(DATOS.puntaje, 'M', 88).g;
+  const esperado = M.redondear((r.distancia.deltaDots * g) / 500, 1);
+  assert.equal(r.distancia.deltaKg, esperado,
+    'los kg de total tienen que salir del delta de Dots, no estar escritos a mano');
+  assert.ok(r.distancia.deltaDots > 0, 'estando en Intermedio, el corte esta arriba');
+});
+
+test('en el nivel mas alto no hay distancia al siguiente, y se dice', () => {
+  // 900 kg de total a 88 kg de peso da un Dots muy por encima del p99 de la cohorte
+  const r = M.comparar(DATOS, copia({}, { sentadilla: 330, banco: 240, despegue: 330 }));
+  assert.equal(r.ok, true);
+  assert.equal(r.nivel.nombre, 'Elite', `dio ${r.nivel.nombre}`);
+  assert.ok(r.puntaje.percentil > 95, `percentil ${r.puntaje.percentil}`);
+  assert.ok(r.distancia.esTope, 'en Elite no deberia haber nivel siguiente');
+  assert.equal(r.distancia.nivelSiguiente, undefined);
+});
+
+test('una cohorte con banda NO estrena nivel: la etiqueta no se emite sobre 14 casos', () => {
+  const delgada = Object.entries(DATOS.celdas)
+    .find(([k, v]) => k.startsWith('nacional') && v.n >= 10 && v.n < 30);
+  assert.ok(delgada);
+  const [, vent, sexo, edad, equipo] = delgada[0].split('|');
+  const edades = { '13-15': 14, '16-17': 16, '18-19': 18, '20-23': 21, '24-34': 27,
+                   '35-39': 37, '40-44': 42, '45-49': 47, '50-54': 52, '55-59': 57,
+                   '60-64': 62, '65-69': 67, '70-74': 72, '75-79': 77 };
+  const r = M.comparar(DATOS, copia({
+    sexo, edad: edades[edad] ?? 27, equipamiento: equipo, alcance: 'nacional', ventana: vent,
+  }));
+  assert.equal(r.ok, true);
+  assert.equal(r.cohorte.calidad, 'banda');
+  assert.equal(r.nivel, null, 'una banda no sostiene un nivel con nombre');
+  assert.equal(r.distancia, null);
+  assert.equal(r.puntaje.banda.length, 2, 'pero si la banda de percentil');
+});
+
+// ── El efecto del peso: EL HALLAZGO ─────────────────────────────────────────
+test('el efecto del peso reproduce los valores medidos sobre el dataset', () => {
+  // Medido contra las 3,66 M de filas: a un total fijo de 610 kg,
+  // 78 kg -> Dots 427,0 · 88 kg -> 399,0 · 98 kg -> 378,8
+  const e = M.efectoDelPeso(DATOS.puntaje, 'M', 88, 610);
+  assert.ok(e, 'deberia calcular el efecto a 88 kg');
+  assert.equal(e.paso, 10);
+  assert.equal(e.menos.peso, 78);
+  assert.equal(e.actual.peso, 88);
+  assert.equal(e.mas.peso, 98);
+
+  const cerca = (a, b, tol = 0.2) => Math.abs(a - b) <= tol;
+  assert.ok(cerca(e.menos.puntaje, 427.0), `78 kg dio ${e.menos.puntaje}, se esperaba 427,0`);
+  assert.ok(cerca(e.actual.puntaje, 399.0), `88 kg dio ${e.actual.puntaje}, se esperaba 399,0`);
+  assert.ok(cerca(e.mas.puntaje, 378.8), `98 kg dio ${e.mas.puntaje}, se esperaba 378,8`);
+});
+
+test('el efecto del peso es monotono decreciente y el delta es el de los valores mostrados', () => {
+  const e = M.efectoDelPeso(DATOS.puntaje, 'M', 88, 610);
+  assert.ok(e.menos.puntaje > e.actual.puntaje,
+    'menos peso con el mismo total tiene que dar MAS puntaje');
+  assert.ok(e.actual.puntaje > e.mas.puntaje,
+    'mas peso con el mismo total tiene que dar MENOS puntaje');
+
+  // El delta tiene que ser la resta de los dos numeros que se muestran: si no,
+  // el usuario no puede verificar la cuenta a mano.
+  assert.equal(e.menos.delta, M.redondear(e.menos.puntaje - e.actual.puntaje, 1));
+  assert.equal(e.mas.delta, M.redondear(e.mas.puntaje - e.actual.puntaje, 1));
+  assert.ok(e.menos.delta > 0);
+  assert.ok(e.mas.delta < 0);
+  assert.ok(Math.abs(e.mas.delta) > 15,
+    `+10 kg de peso deberia costar mas de 15 puntos de Dots, costo ${e.mas.delta}`);
+});
+
+test('el efecto del peso se calcula para los dos sexos con su propia tabla', () => {
+  const m = M.efectoDelPeso(DATOS.puntaje, 'M', 88, 610);
+  const f = M.efectoDelPeso(DATOS.puntaje, 'F', 68, 380);
+  assert.ok(m && f);
+  assert.notEqual(m.actual.puntaje, f.actual.puntaje,
+    'las tablas g de M y F son distintas: el puntaje no puede dar igual');
+});
+
+test('el efecto del peso devuelve null en vez de inventar el punto que falta', () => {
+  assert.equal(M.efectoDelPeso(DATOS.puntaje, 'M', 5, 610), null, 'peso - 10 <= 0');
+  assert.equal(M.efectoDelPeso(DATOS.puntaje, 'M', 0, 610), null);
+  assert.equal(M.efectoDelPeso(null, 'M', 88, 610), null);
+  assert.equal(M.efectoDelPeso(DATOS.puntaje, 'M', 88, 0), null);
+  assert.equal(M.efectoDelPeso(DATOS.puntaje, 'X', 88, 610), null, 'sexo sin tabla');
+});
+
+test('comparar() entrega nivel, distancia y efecto del peso de una sola vez', () => {
+  const r = M.comparar(DATOS, PERFIL);
+  assert.equal(r.ok, true);
+  assert.ok(r.nivel && r.nivel.nombre);
+  assert.ok(r.distancia);
+  assert.ok(r.efectoPeso);
+  assert.equal(r.nivel.percentil, r.puntaje.percentil,
+    'el nivel se deriva del percentil: tienen que coincidir');
+  assert.equal(r.efectoPeso.actual.puntaje, r.puntaje.valor,
+    'el puntaje del efecto tiene que ser el mismo que el del resultado');
+});
+
 // ── Convención de copy: sin tildes ──────────────────────────────────────────
 test('los textos que ve el usuario van SIN tildes ni ñ (copy del sitio)', () => {
   const ACENTOS = /[áéíóúüñÁÉÍÓÚÜÑ¿¡]/;
   const cadenas = [
     M.TEXTOS.sinDesbalances, M.TEXTOS.banda, M.TEXTOS.cohorteAmpliada,
     M.TEXTOS.cohorteMundial, M.TEXTOS.sinPercentil, M.TEXTOS.pesoFueraDeRango,
-    M.TEXTOS.pesoNoEsEje, ...Object.values(M.TEXTOS.atrasado),
+    M.TEXTOS.pesoNoEsEje, M.TEXTOS.nivelTope, M.TEXTOS.efectoPesoMenos,
+    M.TEXTOS.efectoPesoMas, M.TEXTOS.efectoPesoNota,
+    ...Object.values(M.TEXTOS.atrasado),
+    ...M.NIVELES.map((n) => n.nombre),
   ];
   for (const s of cadenas) {
     assert.ok(!ACENTOS.test(s), `texto con tilde o eñe: ${JSON.stringify(s)}`);

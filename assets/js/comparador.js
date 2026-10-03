@@ -73,7 +73,42 @@ const TEXTOS = {
   sinPercentil: 'Con menos de 10 casos no se emite un percentil. Se muestra la medicion cruda.',
   pesoFueraDeRango: 'El peso esta fuera del rango con datos: se uso el extremo mas cercano.',
   pesoNoEsEje: 'El peso corporal no se usa como filtro: el puntaje ya lo normaliza.',
+  nivelTope: 'Ya esta en el nivel mas alto de la cohorte.',
+  efectoPesoMenos: 'Con 10 kg menos y el mismo total, el puntaje seria',
+  efectoPesoMas: 'Con 10 kg mas y el mismo total, el puntaje seria',
+  efectoPesoNota: 'El puntaje divide por una funcion del peso: a igual total, mas peso corporal da menos puntaje.',
 };
+
+/**
+ * Escalones de nivel. Cinco particiones IGUALES de la escala de percentil.
+ *
+ * POR QUE IGUALES, y no los cortes de otro sistema: la escala de percentil es
+ * uniforme por construccion, asi que partirla en quintos es la unica division que
+ * NO requiere elegir umbrales. Las bandas de strengthlevel.com son mas densas
+ * arriba (su "Elite" es mucho mas raro que el 20% de arriba), pero importarlas
+ * seria copiar umbrales sin verificar de donde salen — y este proyecto tiene una
+ * regla explicita contra eso.
+ *
+ * CONSECUENCIA QUE HAY QUE ASUMIR: con quintos iguales, "Elite" es el 20% de
+ * arriba, que es una banda ancha. No es un error de calculo, es el costo de no
+ * inventar cortes. Lo que lo hace honesto es que el nombre NUNCA viaja solo: se
+ * muestra siempre con el percentil y el n al lado, asi que la etiqueta no puede
+ * afirmar una rareza que la medicion no respalda.
+ *
+ * Los bordes (20, 40, 60, 80) caen sobre puntos de la grilla fina, asi que la
+ * distancia al nivel siguiente se lee exacta. Hay un test que lo fija: si alguien
+ * mueve un borde a un valor que no esta en la grilla, el test avisa.
+ */
+const NIVELES = [
+  { nombre: 'Inicial', desde: 0, hasta: 20 },
+  { nombre: 'Base', desde: 20, hasta: 40 },
+  { nombre: 'Intermedio', desde: 40, hasta: 60 },
+  { nombre: 'Avanzado', desde: 60, hasta: 80 },
+  { nombre: 'Elite', desde: 80, hasta: 100 },
+];
+
+/** Cuantos kg de peso corporal para arriba y para abajo muestra el efecto. */
+const PASO_PESO = 10;
 
 // ── Validación de la entrada ─────────────────────────────────────────────────
 function esNumeroPositivo(v) {
@@ -367,6 +402,109 @@ function bandaDe(p) {
 }
 
 /**
+ * Valor del cuantil `p` en una distribución dada como vector + grilla.
+ *
+ * Es la inversa de `percentilDe`: mientras esa convierte un valor en percentil,
+ * esta convierte un percentil en valor. Se necesita para traducir un corte de
+ * nivel a un puntaje concreto ("el nivel Avanzado empieza en Dots 425,5").
+ *
+ * Interpola si `p` no cae exacto sobre un punto de la grilla. Hoy los bordes de
+ * NIVELES (20, 40, 60, 80) sí caen, y hay un test que lo fija.
+ */
+function valorEnPercentil(vector, grilla, p) {
+  if (!Array.isArray(vector) || !Array.isArray(grilla)) return null;
+  const n = Math.min(vector.length, grilla.length);
+  if (n < 2 || !Number.isFinite(p)) return null;
+  if (p <= grilla[0]) return vector[0];
+  if (p >= grilla[n - 1]) return vector[n - 1];
+  for (let i = 0; i < n - 1; i++) {
+    if (p >= grilla[i] && p <= grilla[i + 1]) {
+      const ancho = grilla[i + 1] - grilla[i];
+      if (ancho === 0) return vector[i];
+      const t = (p - grilla[i]) / ancho;
+      return vector[i] + t * (vector[i + 1] - vector[i]);
+    }
+  }
+  return null;
+}
+
+/**
+ * Nivel al que corresponde un percentil. Devuelve null si no es un número.
+ *
+ * Los bordes se resuelven por abajo: el percentil 40 exacto es el primer caso de
+ * "Intermedio", no el último de "Base". Sin esa regla explícita el 20 y el 40
+ * caerían en dos bandas a la vez.
+ */
+function nivelDe(percentil) {
+  if (!Number.isFinite(percentil)) return null;
+  const p = Math.max(0, Math.min(100, percentil));
+  const i = NIVELES.findIndex(
+    (n) => p >= n.desde && (p < n.hasta || n.hasta === 100));
+  if (i < 0) return null;
+  return { ...NIVELES[i], indice: i, percentil: p };
+}
+
+/**
+ * Distancia al nivel siguiente, en kilos de TOTAL.
+ *
+ * Se expresa en kg de total y NO en kg de un levantamiento puntual a propósito:
+ * decir "te faltan 9 kg de banco" sería una prescripción de entrenamiento, y la
+ * capa no prescribe (ver doc 01, "el borde"). El total es una medición.
+ */
+function distanciaAlNivel(nivel, dotsActual, celda, grilla, g) {
+  if (!nivel || !celda) return null;
+  if (nivel.indice >= NIVELES.length - 1) return { esTope: true };
+  const dotsCorte = valorEnPercentil(celda.dots, grilla, nivel.hasta);
+  if (!Number.isFinite(dotsCorte) || !Number.isFinite(dotsActual) || !g) return null;
+  const deltaDots = dotsCorte - dotsActual;
+  return {
+    esTope: false,
+    nivelSiguiente: NIVELES[nivel.indice + 1].nombre,
+    percentilCorte: nivel.hasta,
+    dotsCorte: redondear(dotsCorte, 1),
+    deltaDots: redondear(deltaDots, 1),
+    deltaKg: deltaDots > 0 ? redondear((deltaDots * g) / 500, 1) : 0,
+  };
+}
+
+/**
+ * Efecto del peso corporal a total constante. ES EL HALLAZGO DEL PROYECTO.
+ *
+ * A igual total, más peso corporal da menos puntaje, porque el Dots divide por
+ * g(peso) y g crece con el peso. Medido sobre el dataset: con un total fijo de
+ * 610 kg, pasar de 88 a 103 kg de peso baja el Dots de 399,0 a 370,8.
+ *
+ * Devuelve los tres puntos (peso - PASO, peso, peso + PASO) con su puntaje, más
+ * el delta contra el actual. Si algún punto no se puede calcular —peso negativo o
+ * tabla ausente— devuelve null y la interfaz no muestra la comparación: no se
+ * inventa el punto que falta.
+ */
+function efectoDelPeso(tabla, sexo, peso, total) {
+  if (!tabla || !esNumeroPositivo(peso) || !esNumeroPositivo(total)) return null;
+  const bajos = peso - PASO_PESO;
+  if (bajos <= 0) return null;
+
+  const punto = (p) => {
+    const r = gDePuntaje(tabla, sexo, p);
+    if (!r || !Number.isFinite(r.g) || r.g <= 0) return null;
+    return {
+      peso: redondear(p, 1),
+      puntaje: redondear((total * 500) / r.g, 1),
+      clampeado: r.clampeado,
+    };
+  };
+
+  const menos = punto(bajos);
+  const actual = punto(peso);
+  const mas = punto(peso + PASO_PESO);
+  if (!menos || !actual || !mas) return null;
+
+  menos.delta = redondear(menos.puntaje - actual.puntaje, 1);
+  mas.delta = redondear(mas.puntaje - actual.puntaje, 1);
+  return { paso: PASO_PESO, menos, actual, mas };
+}
+
+/**
  * Corre la comparación completa y devuelve el resultado.
  *
  * Devuelve siempre un objeto: `{ok:true, ...}` o `{ok:false, errores:[...]}`.
@@ -456,6 +594,17 @@ function comparar(datos, perfil) {
     ? diagnosticar(celda, grilla.gruesa, shares)
     : { atrasado: null, percentiles: {}, sinDatos: true };
 
+  // Nivel con nombre, distancia al siguiente y efecto del peso. Los tres salen de
+  // la MISMA grilla de Dots que ya se uso para el percentil: son otra forma de
+  // presentar la medicion, no datos nuevos. Si el percentil es exacto se calculan;
+  // si la cohorte es chica (banda) no, porque una etiqueta sobre 14 casos es
+  // precisamente la precision falsa que el sistema evita.
+  const nivel = exacto ? nivelDe(celdaPuntaje.percentil) : null;
+  const distancia = exacto && g && Number.isFinite(puntaje)
+    ? distanciaAlNivel(nivel, puntaje, celda, grilla.fina, g.g)
+    : null;
+  const efectoPeso = efectoDelPeso(datos.puntaje, perfil.sexo, perfil.peso, shares.total);
+
   return {
     ok: true,
     cohorte: {
@@ -477,6 +626,9 @@ function comparar(datos, perfil) {
       percentiles: diag.percentiles,
       texto: diag.atrasado ? TEXTOS.atrasado[diag.atrasado] : TEXTOS.sinDesbalances,
     },
+    nivel,
+    distancia,
+    efectoPeso,
     limitaciones,
     trazabilidad: {
       generado_por: meta.generado_por || null,
@@ -489,10 +641,12 @@ function comparar(datos, perfil) {
 }
 
 const Comparador = {
-  CONTRATO, UMBRALES, BANDA_ANCHO, LIMITES, CLASES_EDAD, EQUIPAMIENTOS, LEVANTAMIENTOS, TEXTOS,
+  CONTRATO, UMBRALES, BANDA_ANCHO, LIMITES, NIVELES, PASO_PESO,
+  CLASES_EDAD, EQUIPAMIENTOS, LEVANTAMIENTOS, TEXTOS,
   claseDeEdad, validarPerfil, sharesDe, percentilDe, gDePuntaje, evaluarCalidad,
   ventanaMasAmplia, claveCelda, buscarCelda, resolverCohorte, diagnosticar,
-  bandaDe, redondear, comparar,
+  bandaDe, redondear, valorEnPercentil, nivelDe, distanciaAlNivel, efectoDelPeso,
+  comparar,
 };
 
 if (typeof globalThis !== 'undefined') globalThis.Comparador = Comparador;

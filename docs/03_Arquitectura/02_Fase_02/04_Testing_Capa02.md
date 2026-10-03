@@ -51,6 +51,69 @@ está documentado: se encontró rompiéndolo, no leyéndolo.
 | 13 | **La tabla de referencia coincide con BigQuery** dentro de la tolerancia | Cambiar un valor de la tabla y verificar que el test falla. Es el mismo patrón que ya usa `refresh_data.py` para `data.json` |
 | 14 | **Trazabilidad.** La respuesta declara dataset, región, ventana y ejes | Verificar que los campos están y que la región dice `southamerica-east1` |
 
+### Sobre la presentación
+
+Lo que agrega el documento 05. El riesgo acá no es medir mal: es **presentar bien
+una medición que dice otra cosa**.
+
+| # | Criterio | Cómo se rompe |
+|---|---|---|
+| 15 | **El nivel no viaja solo.** El nombre se muestra siempre con el percentil y el n al lado | Ocultar el percentil en el bloque del nivel: el test tiene que fallar |
+| 16 | **Los cortes de nivel son quintos iguales.** `Elite` empieza en el percentil 80 y hay un test que lo fija | Mover el corte de `Elite` a 60: fallan el test de particiones y el del corte |
+| 17 | **Sin percentil exacto no hay nivel.** Una cohorte con banda no estrena etiqueta | Emitir el nivel desde el punto medio de la banda: falla el test de la cohorte fina |
+| 18 | **El efecto del peso reproduce los medidos.** 78 kg → 427,0 · 88 kg → 399,0 · 98 kg → 378,8 a 610 kg de total | Hacer que el efecto no dependa del peso: falla |
+| 19 | **El efecto del peso no inventa el punto que falta.** Con peso ≤ 10 kg devuelve `null` | Quitar el guard de `peso − 10`: devuelve un punto y falla |
+| 20 | **La distancia va en kg de total**, derivada del delta de Dots y de `g`, no escrita a mano | Fijar `deltaKg: 0`: falla el test de consistencia |
+| 21 | **La advertencia de rango se muestra, el número también.** Con un peso fuera del rango con datos, el medidor avisa y no esconde | Desactivar la detección: falla |
+| 22 | **Ningún número sin su limitación.** El aviso del peso se va cuando el medidor se oculta, y no queda colgado | Dejar el aviso visible al ocultar el medidor: falla |
+
+El criterio 21 merece un comentario: la opción fácil era **esconder** el medidor
+cuando el peso está fuera del rango. Se eligió lo contrario —mostrar el número y
+advertir— porque esconderlo deja a la persona sin la medición y sin explicación.
+La regla de la capa es advertir, no esconder.
+
+## Nota sobre el criterio 21: el aviso leído del campo equivocado
+
+La primera versión del aviso leía `efectoPeso.actual.clampeado`. Con un peso de
+5 kg ese campo **no existe**: `efectoDelPeso` devuelve `null` cuando no puede
+calcular `peso − 10`, así que la condición era falsa y el aviso se perdía justo en
+el caso extremo, que es cuando más hace falta. Lo mostró el navegador real y lo
+confirmó un test en rojo.
+
+La corrección no fue parchear la condición sino cambiar la fuente: el motor **ya
+declara** esa limitación en `limitaciones`, y la interfaz ahora la repite en vez
+de recalcularla. Dos fuentes para un mismo hecho es una fuente de más: tarde o
+temprano una se actualiza y la otra no.
+
+## Nota sobre el verificador: la rotura aplicada al lugar equivocado
+
+`scripts/verificar_tests.py` busca un texto en el archivo y lo reemplaza. La
+rotura del bloque del peso usaba `cajaPeso.hidden = true;`, que aparecía **dos
+veces** (`pintarPeso` y el camino de ocultado). El reemplazo cayó en la primera
+ocurrencia, ninguna prueba miraba esa línea, y **la suite quedó verde con el
+código roto**: un falso OK del propio verificador.
+
+Es una variante más fina del problema que el verificador existe para cazar. No es
+que la rotura no se haya aplicado —eso el script lo reporta como `??`—, es que se
+aplicó **donde no correspondía**. Las dos correcciones:
+
+1. **Unificar el ocultado** en una sola función `ocultarMedidor()`, para que no
+   haya dos lugares haciendo lo mismo por caminos distintos. Dos caminos para un
+   mismo hecho es lo que permite que una rotura caiga en el camino que nadie mira.
+2. **Anclar con el texto completo**: un `\n` inicial más la sangría exacta hace el
+   ancla única. El `\n` funciona con finales de línea CRLF porque `\r\n` contiene
+   `\n`.
+
+Regla general que deja: **el verificador de roturas también tiene que poder
+fallar.** Un `XX` es tan grave como un `??` y más difícil de notar, porque el
+script termina en verde y el resumen solo cuenta las roturas que sí rompieron
+algo.
+
+## Estado de la verificación
+
+**34 roturas declaradas, 34 hacen fallar su test.** El listado se consulta con
+`python scripts/verificar_tests.py --listar`; una sola, con `--solo N`.
+
 ## Tolerancia
 
 `APPROX_QUANTILES` es determinista para el mismo input pero **aproximado**. Los
