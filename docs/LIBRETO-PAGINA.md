@@ -24,14 +24,14 @@ o actualizás el libreto o el check te avisa.
 |---|---|---|---|
 | 1 | Beat del arco (bloque 4) | Opción B — la versión más cruda | 2026-10-03 |
 | 2 | Libreto post-aplicación | Se queda en el repo + check que lo compara contra `index.html` | 2026-10-03 |
-| 3 | Diálogo del bloque 4 | Escena con Pavlov Sharoslav, sin forzar el paralelismo QA/datos | 2026-10-03 |
+| 3 | Diálogo del bloque 4 | Escena con otro levantador, sin forzar el paralelismo QA/datos | 2026-10-03 |
 
 ## Verificación previa (checklist del libreto)
 
 | Ítem | Resultado |
 |---|---|
 | Queries versionadas con `@data-key` | **11** ✓ (el copy dice 11) |
-| Tests | **61** ✓ (36 Python + 25 frontend) |
+| Tests | **195** ✓ (97 Python + 98 frontend, medido 2026-10-03) |
 | Filas del dataset | 3.658.065 → **3,66 M** ✓ |
 | Tamaño de la tabla | 809,7 MB → **810 MB** ✓ |
 | Script de refresh | `scripts/refresh_data.py` ✓ existe |
@@ -43,12 +43,12 @@ o actualizás el libreto o el check te avisa.
 
 | Ítem | Estado |
 |---|---|
-| El nombre **Pavlov Sharoslav** | ⚠️ **NO VERIFICADO** — hay una duda declarada entre esta grafía y "Pavel Sharaslav". Sólo el autor puede confirmarlo |
-| La línea de colectivo **112** | ⚠️ **NO VERIFICADO** — dato personal, no comprobable desde el repo |
-| La escena del bondi | ⚠️ **NO VERIFICADO** — anécdota personal |
+| La escena del bondi | ⚠️ **NO VERIFICADO** — anécdota personal, no comprobable desde el repo |
 
-Los tres están en el copy publicado. Si alguno es incorrecto, se corrige en el libreto y en
-`index.html`, y el check mantiene los dos alineados.
+El nombre propio y la línea de colectivo salieron del copy **antes de publicar** (2026-10-03):
+los dos estaban marcados como no verificables y publicarlos como prosa llana contradecía la
+regla del proyecto. La escena se mantiene —lo que hace el trabajo es el diálogo, no el
+nombre— con una caracterización neutra. Ver la nota al final de la sección 4.
 
 ---
 
@@ -179,7 +179,7 @@ El `<h3>` de la sección desaparece: su texto ahora es el titular del hero. Sin 
 
 **Ahora:**
 
-> Estaba esperando el 112 con Pavlov Sharoslav. Volviendo de entrenar.
+> Estaba esperando el bondi con otro levantador. Volviendo de entrenar.
 >
 > Le decia que un atleta que levanta 300 kilos puede ser extraordinario o promedio. Depende de la
 > categoria, la federacion, si fue raw o equipado.
@@ -214,7 +214,7 @@ en la versión anterior: la confesión hace ese trabajo mejor. Agregar más ser�
 
 ## Notas
 
-- La conexión entre los dos dominios ya no la afirma un párrafo explicativo: la hace Pavlov con una
+- La conexión entre los dos dominios ya no la afirma un párrafo explicativo: la hace otro levantador con una
   pregunta. El paralelismo forzado ("exactamente igual que...") desaparece.
 - "Un numero que suena a algo pero no dice nada" reemplaza "un numero que miente": concreto en lugar
   de abstracto.
@@ -223,8 +223,23 @@ en la versión anterior: la confesión hace ese trabajo mejor. Agregar más ser�
 - **"Los siete graficos" es correcto aunque hoy haya 10 canvas.** Los siete eran los gráficos
   originales, y los siete mostraban datos de ejemplo. Los otros tres se agregaron después. No
   corregir a "diez": cambiaría el hecho.
-- ⚠️ El nombre y la línea del 112 están sin verificar (ver tabla de arriba).
 - El caso de estudio se enlaza a `docs/CASO-DE-ESTUDIO.md`.
+
+### Nota: por qué salieron el nombre y la línea de colectivo
+
+La escena es una anécdota personal y funciona por el diálogo, no por quién lo dijo. El nombre
+propio y el número de línea estaban los dos marcados `⚠️ NO VERIFICADO` en la tabla de arriba,
+y el segundo era además imposible de comprobar desde el repo.
+
+Publicarlos como prosa llana —sin la marca— habría convertido una duda declarada en una
+afirmación: exactamente lo que el proyecto no hace con ningún otro dato. Se retiraron antes
+de que el commit saliera, y la caracterización quedó neutra (`otro levantador`).
+
+Lo que **no** cambió: la escena, el diálogo, el ritmo corto-largo-corto y el cierre. El
+reemplazo toca una sola frase.
+
+Si en algún momento se confirman, se reincorporan al libreto y a `index.html` — el check
+mantiene los dos alineados.
 
 ---
 
@@ -349,7 +364,7 @@ Nota metodologica: este dashboard no busca mostrar quien es mejor. Busca mostrar
 
 > Testing analitico
 >
-> Esquemas, nulos, rangos e inconsistencias: 61 tests que corren en cada push. Un validador
+> Esquemas, nulos, rangos e inconsistencias: 195 tests que corren en cada push. Un validador
 > impide escribir un data.json incompleto.
 
 ## Paso 04
@@ -365,7 +380,7 @@ Nota metodologica: este dashboard no busca mostrar quien es mejor. Busca mostrar
 
 ## Notas
 
-- Los números (61 tests, 11 queries) no aparecían en ninguna parte del copy. Los cuatro pasos decían
+- Los números (195 tests, 11 queries) no aparecían en ninguna parte del copy. Los cuatro pasos decían
   lo mismo que cualquier proyecto de datos diría.
 - "GCS" → "Cloud Storage", más claro para quien no es técnico.
 - "Un validador impide escribir un data.json incompleto" es la parte más fuerte: una regla técnica
@@ -528,8 +543,8 @@ comparador vive en el cuerpo de la página, no en la barra.
 | Bloque | Cambio |
 |---|---|
 | Tarjetas 1 y 2 del hero | etiquetas abstractas → afirmaciones con números |
-| Bloque 4 párrafos 1-3 | párrafo explicativo → escena con Pavlov |
-| Bloque 7 (los 4 pasos) | abstracto → con números concretos (61 tests, 11 queries) |
+| Bloque 4 párrafos 1-3 | párrafo explicativo → escena con otro levantador |
+| Bloque 7 (los 4 pasos) | abstracto → con números concretos (195 tests, 11 queries) |
 | Bloque 8 bajada | regla de tres → una sola idea |
 | Bloque 8 nodos RAW y ANALISIS | más claro + "pendiente" en la Capa 02 |
 | Bloque 8 las 3 tarjetas | "GCS es la única fuente de verdad" → flujo real |
@@ -541,7 +556,7 @@ comparador vive en el cuerpo de la página, no en la barra.
 |---|---|
 | Tarjeta 3: "Si el dato no carga, no se muestra nada" | El commit que eliminó los datos de reemplazo. Comprobable desconectando la red |
 | Beat del arco (opción B) | `docs/CASO-DE-ESTUDIO.md` |
-| Los números 61 tests y 11 queries | Corren en CI en cada push |
+| Los números 195 tests y 11 queries | Corren en CI en cada push |
 
 ## Repetición
 
