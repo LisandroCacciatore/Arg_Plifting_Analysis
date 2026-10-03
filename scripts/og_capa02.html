@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<!--
+  Generador de la tarjeta social (Open Graph) de la Capa 02.
+
+  Por que existe: cuando el articulo o el post linkean al comparador, LinkedIn
+  arma una tarjeta con og:image. Sin esto el link sale pelado, sin imagen —
+  justo en el lugar donde se pierde el clic.
+
+  Medida 1200x630: la que pide LinkedIn (y aceptan X/WhatsApp/Slack).
+
+  Regenerar:
+    CHROME="/c/Program Files/Google/Chrome/Application/chrome.exe"
+    "$CHROME" --headless=new --disable-gpu --no-sandbox \
+      --user-data-dir="$LOCALAPPDATA/Temp/og" \
+      --virtual-time-budget=6000 --window-size=1200,630 --hide-scrollbars \
+      --screenshot="C:/Users/Torso/Arg_Plifting_Analysis/assets/img/og-capa02.png" \
+      "file:///C:/Users/Torso/Arg_Plifting_Analysis/scripts/og_capa02.html"
+
+  Los numeros NO son decorativos: 78 -> 427,0 / 88 -> 399,0 / 98 -> 378,8 con
+  los deltas +28,0 y -20,2 son los que devuelve el motor del comparador a un
+  total fijo de 610 kg. Si cambian, se cambian aca y en el articulo: son el
+  mismo dato. Hay un test que lo fija (tests/frontend/comparador.test.mjs).
+
+  COPY: sin tildes, igual que la prosa del sitio y la meta description.
+-->
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Outfit:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 1200px;
+            height: 630px;
+            overflow: hidden;
+        }
+
+        body {
+            background: #0f172a;
+            font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+            color: #f8fafc;
+            padding: 56px 64px 48px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Halo azul, para que no sea un rectangulo plano */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -220px;
+            right: -160px;
+            width: 620px;
+            height: 620px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.22), transparent 68%);
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            bottom: -260px;
+            left: -120px;
+            width: 520px;
+            height: 520px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.14), transparent 70%);
+            pointer-events: none;
+        }
+
+        .cabecera {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .marca {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 27px;
+            letter-spacing: -0.01em;
+        }
+
+        .marca span {
+            color: #3b82f6;
+        }
+
+        .etiqueta {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #93c5fd;
+            border: 1px solid rgba(59, 130, 246, 0.45);
+            background: rgba(59, 130, 246, 0.12);
+            border-radius: 999px;
+            padding: 6px 15px;
+        }
+
+        .titulo {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 60px;
+            line-height: 1.06;
+            letter-spacing: -0.025em;
+            margin-top: 34px;
+            max-width: 940px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .bajada {
+            font-size: 21px;
+            line-height: 1.5;
+            color: #94a3b8;
+            margin-top: 18px;
+            max-width: 880px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .puntos {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-top: auto;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .punto {
+            background: rgba(30, 41, 59, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 20px 22px;
+            text-align: center;
+        }
+
+        .punto.actual {
+            border-color: rgba(56, 189, 248, 0.55);
+            background: rgba(56, 189, 248, 0.09);
+        }
+
+        .peso {
+            font-size: 16px;
+            font-weight: 600;
+            color: #94a3b8;
+            letter-spacing: 0.02em;
+        }
+
+        .valor {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 52px;
+            line-height: 1.1;
+            margin-top: 4px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .delta {
+            font-size: 19px;
+            font-weight: 700;
+            margin-top: 2px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .delta.arriba {
+            color: #4ade80;
+        }
+
+        .delta.abajo {
+            color: #f87171;
+        }
+
+        .delta.neutro {
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .pie {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+            color: #64748b;
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
+            padding-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .pie strong {
+            color: #94a3b8;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="cabecera">
+        <div class="marca">LC<span>.</span> Data</div>
+        <div class="etiqueta">Capa 02 &middot; Comparador</div>
+    </div>
+
+    <div class="titulo">El mismo total,<br>distinto peso corporal</div>
+
+    <div class="bajada">El puntaje divide por una funcion del peso: a igual total, mas peso corporal da menos puntaje.</div>
+
+    <div class="puntos">
+        <div class="punto">
+            <div class="peso">78,0 kg</div>
+            <div class="valor">427,0</div>
+            <div class="delta arriba">+28,0</div>
+        </div>
+        <div class="punto actual">
+            <div class="peso">88,0 kg</div>
+            <div class="valor">399,0</div>
+            <div class="delta neutro">&mdash;</div>
+        </div>
+        <div class="punto">
+            <div class="peso">98,0 kg</div>
+            <div class="valor">378,8</div>
+            <div class="delta abajo">&minus;20,2</div>
+        </div>
+    </div>
+
+    <div class="pie">
+        <div><strong>3,66 millones</strong> de resultados &middot; OpenPowerlifting</div>
+        <div>lisandrocacciatore.github.io</div>
+    </div>
+</body>
+
+</html>

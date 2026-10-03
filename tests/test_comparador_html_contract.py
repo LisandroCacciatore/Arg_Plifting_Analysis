@@ -8,6 +8,7 @@ Además verifica la convención de copy del sitio (prosa sin tildes) sobre la p�
 nueva: es la regla que ya se rompió una vez en el banner de error del dashboard.
 """
 import re
+import struct
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
@@ -216,3 +217,104 @@ def test_la_pagina_no_promete_un_plan_de_entrenamiento():
 def test_la_pagina_declara_que_no_tiene_backend():
     assert "no tiene backend" in _html().lower() or "no tiene backend" in _js().lower(), \
         "la pagina deberia declarar que los numeros salen de un archivo versionado"
+
+
+# ── Tarjeta social (Open Graph) ─────────────────────────────────────────────
+BASE = "https://lisandrocacciatore.github.io/Arg_Plifting_Analysis/"
+TARJETA = RAIZ / "assets" / "img" / "og-capa02.png"
+GENERADOR = RAIZ / "scripts" / "og_capa02.html"
+
+
+def meta(prop: str) -> str | None:
+    """Valor de un meta por property= o por name=, con el orden de atributos que sea."""
+    html = _html()
+    for pat in (rf'<meta[^>]+property="{re.escape(prop)}"[^>]+content="([^"]*)"',
+                rf'<meta[^>]+content="([^"]*)"[^>]+property="{re.escape(prop)}"',
+                rf'<meta[^>]+name="{re.escape(prop)}"[^>]+content="([^"]*)"',
+                rf'<meta[^>]+content="([^"]*)"[^>]+name="{re.escape(prop)}"'):
+        m = re.search(pat, html)
+        if m:
+            return m.group(1)
+    return None
+
+
+def dimensiones_png(ruta: Path) -> tuple[int, int]:
+    """Ancho y alto leidos del header IHDR. Sin dependencias: el PNG los trae."""
+    d = ruta.read_bytes()
+    assert d[:8] == b"\x89PNG\r\n\x1a\n", f"{ruta.name} no es un PNG valido"
+    return struct.unpack(">II", d[16:24])
+
+
+def test_la_pagina_declara_los_metadatos_de_la_tarjeta_social():
+    """Sin og: el link sale pelado cuando alguien lo pega en LinkedIn o X.
+
+    No es cosmetico: es el lugar donde el link consigue o pierde el clic, y es el
+    unico canal por el que el articulo lleva al comparador.
+    """
+    for prop in ("og:type", "og:title", "og:description", "og:url",
+                 "og:image", "og:image:width", "og:image:height", "og:image:alt",
+                 "twitter:card", "twitter:image"):
+        assert meta(prop), f"falta el meta {prop} en comparador.html"
+    assert meta("twitter:card") == "summary_large_image"
+
+
+def test_la_imagen_de_la_tarjeta_existe_en_el_repo():
+    """El og:image apunta a una URL publicada: el archivo tiene que estar.
+
+    Este es el chequeo que evita el fallo mas comun y mas silencioso: un og:image
+    que apunta a una ruta que no existe. La tarjeta sale sin imagen y nadie se
+    entera hasta que alguien pega el link.
+    """
+    url = meta("og:image")
+    assert url.startswith(BASE), f"og:image no apunta al sitio publicado: {url}"
+    ruta = RAIZ / url[len(BASE):]
+    assert ruta.is_file(), (
+        f"og:image apunta a {url} pero ese archivo no existe en el repo "
+        f"(se esperaba {ruta.relative_to(RAIZ)})")
+    assert TARJETA.is_file(), f"falta {TARJETA.relative_to(RAIZ)}"
+    assert ruta.resolve() == TARJETA.resolve(), (
+        f"og:image apunta a {ruta.name} y el generador escribe {TARJETA.name}")
+
+
+def test_las_dimensiones_declaradas_son_las_reales_y_las_que_pide_linkedin():
+    """1200x630 es la medida de LinkedIn. Se verifica contra el PNG, no contra el
+    numero escrito a mano: son dos fuentes y pueden discrepar."""
+    declarado = (int(meta("og:image:width")), int(meta("og:image:height")))
+    assert declarado == (1200, 630), f"declarado {declarado}, se espera (1200, 630)"
+    real = dimensiones_png(TARJETA)
+    assert real == declarado, (
+        f"el PNG mide {real} y el meta declara {declarado}: "
+        f"la tarjeta saldria recortada o estirada")
+    # La misma imagen en las dos tarjetas: si una queda vieja, la otra miente
+    assert meta("twitter:image") == meta("og:image")
+
+
+def test_el_og_url_es_la_url_publicada_de_esta_pagina():
+    """Si apunta a otro lado, el scraper de LinkedIn marca la tarjeta como ajena."""
+    assert meta("og:url") == BASE + "comparador.html"
+
+
+def test_el_generador_de_la_tarjeta_muestra_los_numeros_del_motor():
+    """Los numeros de la tarjeta son una medicion, no una ilustracion: tienen que
+    ser los mismos que devuelve el motor del comparador a 610 kg de total.
+
+    Se leen los <div class="valor"> y <div class="delta"> REALES, no el texto del
+    archivo: los numeros tambien aparecen en el comentario de cabecera, asi que un
+    `in gen` sobre el archivo entero sigue dando True aunque la tarjeta muestre
+    otra cosa. Ese fue un falso OK real de este test (la rotura #38 del
+    verificador lo cazo).
+    """
+    gen = GENERADOR.read_text(encoding="utf-8")
+    valores = re.findall(r'<div class="valor">([^<]+)</div>', gen)
+    assert valores == ["427,0", "399,0", "378,8"], (
+        f"los puntajes de la tarjeta son {valores}, se esperaba "
+        f"['427,0', '399,0', '378,8'] (los que devuelve el motor a 610 kg)")
+    deltas = re.findall(r'<div class="delta[^"]*">([^<]+)</div>', gen)
+    assert deltas == ["+28,0", "&mdash;", "&minus;20,2"], (
+        f"los deltas de la tarjeta son {deltas}")
+
+    # Los mismos numeros tienen que estar sostenidos por el dato: la celda de
+    # referencia del golden master del motor.
+    import json
+    cohortes = json.loads((RAIZ / "assets" / "data" / "cohortes.json").read_text(encoding="utf-8"))
+    assert cohortes["celdas"]["mundial|desde_2018|M|24-34|Raw"]["n"] == 140561

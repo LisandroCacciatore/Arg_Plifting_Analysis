@@ -10,7 +10,7 @@ Es la forma ejecutable de la regla de docs/03_Arquitectura/02_Fase_02/
 04_Testing_Capa02.md: "todo test tiene que poder fallar".
 
 Uso:
-    python scripts/verificar_tests.py              verifica las 34 roturas
+    python scripts/verificar_tests.py              verifica las 38 roturas
     python scripts/verificar_tests.py --listar     muestra las roturas sin correr
     python scripts/verificar_tests.py --solo 3     corre solo la rotura numero 3
 
@@ -32,6 +32,7 @@ PAGINA = RAIZ / "assets" / "js" / "comparador-pagina.js"
 HTML = RAIZ / "comparador.html"
 COHORTES = RAIZ / "assets" / "data" / "cohortes.json"
 SQL = RAIZ / "SQL" / "phase_3_scala" / "QueryCapa02.sql"
+GENERADOR_OG = RAIZ / "scripts" / "og_capa02.html"
 
 NODE_COMPARADOR = ["node", "--test", "tests/frontend/comparador.test.mjs"]
 NODE_PAGINA = ["node", "--test", "tests/frontend/pagina-comparador.test.mjs"]
@@ -288,6 +289,44 @@ ROTURAS = [
         "    vivoAviso.hidden = false;",
         NODE_PAGINA,
     ),
+    # ── La tarjeta social ─────────────────────────────────────────────────
+    (
+        "el og:image apunta a un archivo que no existe (tarjeta sin imagen)",
+        HTML,
+        # Ancla de dos lineas: la URL sola aparece DOS veces (og:image y
+        # twitter:image) y el reemplazo caeria en cualquiera de las dos. Con la
+        # propiedad incluida es unica. Funciona con CRLF porque el verificador
+        # normaliza los finales de linea antes de comparar.
+        '    <meta property="og:image"\n        content="https://lisandrocacciatore.github.io/Arg_Plifting_Analysis/assets/img/og-capa02.png">',
+        '    <meta property="og:image"\n        content="https://lisandrocacciatore.github.io/Arg_Plifting_Analysis/assets/img/no-existe.png">',
+        PY_CONTRATO,
+    ),
+    (
+        "las dimensiones declaradas dejan de coincidir con el PNG real",
+        HTML,
+        '<meta property="og:image:height" content="630">',
+        '<meta property="og:image:height" content="631">',
+        PY_CONTRATO,
+    ),
+    (
+        "el og:url apunta a otra pagina",
+        HTML,
+        'content="https://lisandrocacciatore.github.io/Arg_Plifting_Analysis/comparador.html">',
+        'content="https://lisandrocacciatore.github.io/Arg_Plifting_Analysis/index.html">',
+        PY_CONTRATO,
+    ),
+    (
+        "la tarjeta publica un numero que el motor no devuelve",
+        GENERADOR_OG,
+        # El \n + la sangria son imprescindibles: '378,8' aparece tambien en el
+        # comentario de cabecera del archivo, y sin el prefijo el reemplazo caia
+        # ahi en vez de en el div — la suite quedaba verde con la tarjeta rota.
+        # (Es la segunda vez que pasa en este script: ahora el ancla ambigua se
+        # rechaza sola, ver el chequeo de `ocurrencias` mas abajo.)
+        '\n            <div class="valor">378,8</div>',
+        '\n            <div class="valor">999,9</div>',
+        PY_CONTRATO,
+    ),
 ]
 
 
@@ -329,17 +368,44 @@ def main() -> int:
     problemas: list[str] = []
     for numero, (nombre, archivo, viejo, nuevo, cmd) in seleccion:
         original = archivo.read_text(encoding="utf-8")
-        if viejo not in original:
+
+        # Los finales de linea se normalizan a LF para comparar y reemplazar.
+        # Razon: un ancla multilinea escrita con \n NO matchea un archivo CRLF
+        # ('...">' queda seguido de \r, no de \n), y quien escribe la rotura no
+        # tiene por que saber con que final de linea quedo cada archivo del repo.
+        # Se restaura el final de linea original al escribir, asi el archivo no
+        # se reescribe entero en el respaldo/restauracion.
+        crlf = "\r\n" in original
+        texto = original.replace("\r\n", "\n")
+        viejo_n = viejo.replace("\r\n", "\n")
+        nuevo_n = nuevo.replace("\r\n", "\n")
+
+        # El ancla tiene que ser UNICA. Si el texto aparece mas de una vez, el
+        # replace(..., 1) cae en la primera ocurrencia, que puede ser una rama
+        # que ningun test mira: la suite queda VERDE con el codigo roto.
+        # Le paso dos veces a este script (los dos casos estan documentados en
+        # docs/03_Arquitectura/02_Fase_02/04_Testing_Capa02.md). Se rechaza en
+        # vez de advertir, porque un falso OK del verificador es peor que una
+        # rotura de menos: da por buena toda la corrida.
+        ocurrencias = texto.count(viejo_n)
+        if ocurrencias != 1:
             print(f"  ??  [{numero}] {nombre}")
-            print(f"      la rotura NO matcheo en {archivo.name}: {viejo[:60]!r}")
-            print(f"      (una rotura que no se aplico no prueba nada)")
+            if ocurrencias == 0:
+                print(f"      la rotura NO matcheo en {archivo.name}: {viejo[:60]!r}")
+                print(f"      (una rotura que no se aplico no prueba nada)")
+            else:
+                print(f"      el ancla aparece {ocurrencias} veces en {archivo.name}")
+                print(f"      (el reemplazo caeria en la primera, que puede ser la equivocada:")
+                print(f"       agregale contexto —un \\n inicial y la sangria exacta— "
+                      f"para que sea unica)")
             problemas.append(nombre)
             continue
 
         respaldo = archivo.with_suffix(archivo.suffix + ".bak")
         shutil.copy2(archivo, respaldo)
         try:
-            archivo.write_text(original.replace(viejo, nuevo, 1), encoding="utf-8")
+            roto = texto.replace(viejo_n, nuevo_n, 1)
+            archivo.write_text(roto.replace("\n", "\r\n") if crlf else roto, encoding="utf-8")
             r = correr(cmd)
             if r.returncode == 0:
                 print(f"  XX  [{numero}] {nombre}")
