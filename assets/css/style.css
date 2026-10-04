@@ -2,21 +2,37 @@
    CSS Variables & Theme
    ========================================================================== */
 :root {
-    --bg-primary: #0f172a;      /* Dark slate */
-    --bg-secondary: #1e293b;    /* Slightly lighter slate */
-    --bg-glass: rgba(30, 41, 59, 0.7);
-    --border-glass: rgba(255, 255, 255, 0.1);
-    
+    /* Paleta "LC. Data": near-black, cian y periwinkle sobre una escala de
+       outline. Los colores de estado (verde / ambar / rojo) significan lo mismo
+       en las dos paletas, asi que no se tocan: cambiarlos romperia el
+       significado. */
+    --bg-primary: #0f131c;      /* fondo */
+    --bg-secondary: #181c24;    /* fondo alterno */
+    --bg-surface: #111827;      /* superficie de tarjeta */
+    --bg-container: #1c2028;
+    --bg-container-high: #262a33;
+
+    --bg-glass: rgba(24, 28, 36, 0.7);
+    --border-glass: rgba(255, 255, 255, 0.08);
+
     --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    
-    --accent-primary: #3b82f6;  /* Tech blue */
-    --accent-secondary: #8b5cf6; /* Tech purple */
-    --accent-danger: #ef4444;   /* Red for 'What NOT is' */
-    
-    --font-heading: 'Outfit', sans-serif;
+    --text-secondary: #bbc9cf;
+    --text-outline: #859399;
+    --text-outline-variant: #3c494e;
+
+    --accent-primary: #00d2ff;   /* cian */
+    --accent-secondary: #adc6ff; /* periwinkle */
+    --accent-soft: #a5e7ff;
+    --accent-danger: #ef4444;
+    --status-pass: #10b981;
+    --status-warning: #f59e0b;
+
+    /* El diseno reserva la monoespaciada para etiquetas y datos; la prosa va
+       siempre en Inter. */
+    --font-heading: 'Inter', sans-serif;
     --font-body: 'Inter', sans-serif;
-    
+    --font-mono: 'JetBrains Mono', monospace;
+
     --transition-fast: 0.2s ease;
     --transition-medium: 0.4s ease;
 }
@@ -145,15 +161,15 @@ ul {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-    color: white;
+    /* Solido, no degradado: en el diseno el cian es un color, no un efecto. */
+    background: var(--accent-primary);
+    color: #0a0e16;
     border: none;
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.6);
+    box-shadow: 0 0 22px rgba(0, 210, 255, 0.35);
 }
 
 .btn-secondary {
@@ -188,7 +204,7 @@ ul {
     left: 0;
     width: 100%;
     z-index: 1000;
-    background: rgba(15, 23, 42, 0.85);
+    background: rgba(15, 19, 28, 0.85);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border-glass);
     padding: 1rem 0;
@@ -244,7 +260,7 @@ ul {
     right: -5%;
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(15, 23, 42, 0) 70%);
+    background: radial-gradient(circle, rgba(0, 210, 255, 0.15) 0%, rgba(15, 19, 28, 0) 70%);
     z-index: 0;
 }
 
@@ -255,7 +271,7 @@ ul {
     left: -5%;
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(15, 23, 42, 0) 70%);
+    background: radial-gradient(circle, rgba(173, 198, 255, 0.15) 0%, rgba(15, 19, 28, 0) 70%);
     z-index: 0;
 }
 
@@ -271,15 +287,16 @@ ul {
 .badge {
     display: inline-block;
     padding: 0.35rem 1rem;
-    background: rgba(59, 130, 246, 0.15);
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    background: rgba(0, 210, 255, 0.1);
+    border: 1px solid rgba(0, 210, 255, 0.28);
     color: var(--accent-primary);
     border-radius: 50px;
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    font-weight: 500;
     margin-bottom: 1.5rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.08em;
 }
 
 .hero h1 {
@@ -312,12 +329,12 @@ ul {
 }
 
 .glass-card {
-    background: var(--bg-glass);
+    /* El diseno usa superficies planas con borde tenue, sin blur ni sombra
+       grande: la jerarquia la da el borde, no la profundidad. */
+    background: var(--bg-surface);
     border: 1px solid var(--border-glass);
-    border-radius: 16px;
+    border-radius: 14px;
     padding: 1.5rem;
-    backdrop-filter: blur(16px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
     display: flex;
     align-items: center;
     gap: 1.5rem;
@@ -348,7 +365,7 @@ ul {
 .stat-icon {
     width: 50px;
     height: 50px;
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+    background: linear-gradient(135deg, rgba(0, 210, 255, 0.2), rgba(173, 198, 255, 0.2));
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -430,8 +447,8 @@ ul {
 .icon-wrapper {
     width: 60px;
     height: 60px;
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.2);
+    background: rgba(0, 210, 255, 0.1);
+    border: 1px solid rgba(0, 210, 255, 0.2);
     border-radius: 14px;
     display: flex;
     align-items: center;
@@ -443,7 +460,7 @@ ul {
 
 .hover-up:hover {
     transform: translateY(-10px);
-    border-color: rgba(59, 130, 246, 0.4);
+    border-color: rgba(0, 210, 255, 0.4);
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
 }
 
@@ -470,7 +487,7 @@ ul {
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
-    color: #475569;
+    color: #3c494e;
 }
 
 .loader i {
@@ -577,29 +594,49 @@ footer {
     border-radius: 50px;
     border: 1px solid rgba(255, 255, 255, 0.12);
     background: rgba(255, 255, 255, 0.04);
-    color: #94a3b8;
+    color: #bbc9cf;
     cursor: pointer;
     transition: 0.25s ease;
 }
 
 .filtro-btn:hover {
-    border-color: rgba(59, 130, 246, 0.45);
-    color: #e2e8f0;
+    border-color: rgba(0, 210, 255, 0.45);
+    color: #dfe2ee;
 }
 
 .filtro-btn:focus-visible {
-    outline: 2px solid #3b82f6;
+    outline: 2px solid #00d2ff;
     outline-offset: 2px;
 }
 
 .filtro-btn.is-active {
-    background: rgba(59, 130, 246, 0.16);
-    border-color: rgba(59, 130, 246, 0.55);
-    color: #60a5fa;
+    background: rgba(0, 210, 255, 0.16);
+    border-color: rgba(0, 210, 255, 0.55);
+    color: #a5e7ff;
 }
 
 .filtro-nota {
     font-size: 0.78rem;
-    color: #64748b;
+    color: #859399;
     margin-left: 0.25rem;
+}
+
+/* ==========================================================================
+   Etiquetas tecnicas en monoespaciada
+   El diseno reserva la mono para lo que es dato o etiqueta, nunca para prosa.
+   Es la mitad de la identidad visual; la otra mitad es el cian.
+   ========================================================================== */
+.logo,
+.stat-info h3 {
+    font-family: var(--font-mono);
+}
+
+.stat-info h3 {
+    letter-spacing: -0.01em;
+}
+
+.filtro-btn,
+.filtro-nota {
+    font-family: var(--font-mono);
+    letter-spacing: 0.02em;
 }

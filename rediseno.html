@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<!--
+  CANDIDATO DE REDISENO — "LC. Data | Sport Architecture"
+
+  Por que existe: el diseno que se propuso trae el lenguaje visual correcto
+  (oscuro, mono, cian) pero los DATOS son inventados y el MOTOR es otro.
+  Esta pagina toma el lenguaje visual y lo conecta al motor y al dato REALES.
+
+  Reglas que respeta:
+  - Reusa assets/js/comparador.js tal cual: es el motor con 45 tests. No se
+    reimplementa nada. Esta pagina solo dibuja lo que el motor devuelve.
+  - Los numeros salen de assets/data/data.json y cohortes.json. Ninguno escrito
+    a mano.
+  - COPY sin tildes, como el resto de la prosa del sitio (docs/LIBRETO-PAGINA.md).
+
+  Esto es un SPIKE: no reemplaza nada. comparador.html e index.html siguen
+  intactos y siguen siendo lo que se publica.
+-->
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rediseno candidato · LC. Data</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --background: #0f131c;
+            --surface-card: #111827;
+            --surface-container-lowest: #0a0e16;
+            --surface-container: #1c2028;
+            --surface-container-high: #262a33;
+            --surface-container-highest: #31353e;
+            --primary: #a5e7ff;
+            --primary-container: #00d2ff;
+            --secondary: #adc6ff;
+            --tertiary: #e4d7ff;
+            --text-primary: #f8fafc;
+            --on-surface-variant: #bbc9cf;
+            --outline: #859399;
+            --outline-variant: #3c494e;
+            --status-pass: #10b981;
+            --status-warning: #f59e0b;
+            --status-error: #ef4444;
+            --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--background);
+            color: #dfe2ee;
+            font-family: var(--font-sans);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .mono { font-family: var(--font-mono); }
+        .label-code { font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; font-weight: 500; }
+        .label-ui { font-size: 12px; letter-spacing: .02em; font-weight: 500; }
+        .wrap { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+
+        /* ── Navbar ─────────────────────────────────────────────────────── */
+        .nav {
+            position: sticky; top: 0; z-index: 50;
+            background: rgba(15, 19, 28, .92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--outline-variant);
+        }
+        .nav-in { display: flex; align-items: center; justify-content: space-between; gap: 24px; height: 72px; }
+        .nav-brand { display: flex; align-items: center; gap: 12px; }
+        .nav-mark {
+            width: 32px; height: 32px; border-radius: 4px; background: var(--primary-container);
+            color: var(--surface-container-lowest); display: grid; place-items: center;
+            font-family: var(--font-mono); font-size: 12px; font-weight: 700;
+        }
+        .nav-title { font-weight: 600; font-size: 16px; color: var(--text-primary); letter-spacing: -.01em; }
+        .nav-sub { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--status-pass); }
+        .dot.pulse { animation: pulse 2.4s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+        .nav-links { display: flex; gap: 4px; }
+        .nav-links a {
+            padding: 6px 10px; border-radius: 4px; color: var(--on-surface-variant);
+            text-decoration: none; font-size: 12px; font-weight: 500;
+        }
+        .nav-links a:hover { color: var(--text-primary); background: var(--surface-container); }
+        @media (max-width: 1100px) { .nav-links { display: none; } }
+
+        /* ── Hero ───────────────────────────────────────────────────────── */
+        .hero { padding: 64px 0 56px; position: relative; overflow: hidden; }
+        .glow { position: absolute; border-radius: 50%; filter: blur(90px); pointer-events: none; }
+        .glow-a { top: -140px; left: 22%; width: 420px; height: 420px; background: rgba(0, 210, 255, .10); }
+        .glow-b { top: 90px; right: 4%; width: 340px; height: 340px; background: rgba(5, 102, 217, .13); }
+
+        .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; position: relative; }
+        .pill {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 4px 14px; border-radius: 999px; font-family: var(--font-mono);
+            font-size: 11px; letter-spacing: .04em; font-weight: 500;
+        }
+        .pill-surface { background: var(--surface-container); color: var(--text-primary); }
+        .pill-pass { background: rgba(16, 185, 129, .12); color: var(--status-pass); }
+        .pill-flat { background: var(--surface-container-high); color: var(--on-surface-variant); }
+        .pill .sep { color: var(--outline); }
+
+        .hero-grid { display: grid; grid-template-columns: 1fr 300px; gap: 40px; align-items: end; }
+        @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; } }
+
+        h1 {
+            font-size: 44px; line-height: 1.08; letter-spacing: -.025em; font-weight: 700;
+            color: var(--text-primary); margin-bottom: 18px;
+        }
+        .grad {
+            background: linear-gradient(90deg, var(--primary-container), var(--primary), var(--secondary));
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        .lead { font-size: 16px; color: var(--on-surface-variant); max-width: 620px; line-height: 1.65; }
+        .lead strong { color: var(--text-primary); font-weight: 600; }
+
+        .drift {
+            background: rgba(28, 32, 40, .8); border: 1px solid var(--outline-variant);
+            border-radius: 12px; padding: 18px;
+        }
+        .drift-top { display: flex; justify-content: space-between; align-items: center; color: var(--outline); }
+        .drift-big { font-family: var(--font-mono); font-size: 26px; font-weight: 600; color: var(--text-primary); margin: 8px 0 6px; }
+        .drift-big span { font-size: 13px; font-weight: 400; color: var(--status-pass); }
+
+        /* ── Tarjetas ───────────────────────────────────────────────────── */
+        .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 28px; position: relative; }
+        @media (max-width: 900px) { .cards { grid-template-columns: 1fr; } }
+        .card {
+            background: var(--surface-card); border: 1px solid rgba(255, 255, 255, .05);
+            border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 6px;
+        }
+        .card-head { display: flex; justify-content: space-between; align-items: center; }
+        .card-ico { font-family: var(--font-mono); font-size: 14px; }
+        .metric { font-family: var(--font-mono); font-size: 32px; font-weight: 700; letter-spacing: -.02em; color: var(--text-primary); line-height: 1.1; }
+        .metric em { font-size: 13px; font-weight: 400; font-style: normal; color: var(--primary-container); margin-left: 6px; }
+        .card p { font-size: 12px; color: var(--on-surface-variant); line-height: 1.6; }
+
+        /* ── Seccion ────────────────────────────────────────────────────── */
+        section { padding: 64px 0; }
+        .sec-alt { background: var(--surface-container-lowest); }
+        .sec-tag { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .sec-tag .sq { width: 8px; height: 8px; border-radius: 50%; background: var(--secondary); }
+        h2 { font-size: 30px; letter-spacing: -.02em; font-weight: 600; color: var(--text-primary); margin-bottom: 12px; }
+        .sec-sub { font-size: 14px; color: var(--on-surface-variant); max-width: 680px; line-height: 1.7; }
+
+        /* ── Comparador ─────────────────────────────────────────────────── */
+        .cmp { display: grid; grid-template-columns: 360px 1fr; gap: 24px; margin-top: 32px; align-items: start; }
+        @media (max-width: 980px) { .cmp { grid-template-columns: 1fr; } }
+        .panel { background: var(--surface-card); border: 1px solid rgba(255, 255, 255, .05); border-radius: 16px; padding: 22px; }
+        .field { margin-bottom: 16px; }
+        .field label { display: block; font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--outline); margin-bottom: 7px; }
+        .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .btn {
+            padding: 10px; border-radius: 6px; border: 0; cursor: pointer; font-size: 12px; font-weight: 600;
+            background: var(--surface-container); color: var(--on-surface-variant); font-family: var(--font-sans);
+            transition: all .18s ease;
+        }
+        .btn:hover { color: var(--text-primary); background: var(--surface-container-high); }
+        .btn.on { background: var(--primary-container); color: var(--surface-container-lowest); }
+        select, input[type=number] {
+            width: 100%; padding: 10px; border-radius: 6px; border: 0;
+            background: var(--surface-container); color: var(--text-primary);
+            font-family: var(--font-sans); font-size: 14px;
+        }
+        select:focus, input:focus { outline: 2px solid var(--primary-container); outline-offset: 1px; }
+        .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .hint {
+            margin-top: 4px; padding: 10px 12px; border-radius: 8px;
+            background: var(--surface-container); font-size: 11px; color: var(--outline); line-height: 1.65;
+        }
+        .hint b { color: var(--primary); font-weight: 600; }
+
+        /* El panel de salida (derecha): el medidor y los numeros juntos */
+        .salida[hidden] { display: none; }
+        .salida-top {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 14px; flex-wrap: wrap; margin-bottom: 20px;
+        }
+        .salida-num {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+            padding: 18px 20px; border-radius: 12px;
+            background: var(--surface-container-lowest); border: 1px solid rgba(255, 255, 255, .05);
+        }
+        .salida-num > div { border-left: 1px solid rgba(255, 255, 255, .07); padding-left: 20px; min-width: 0; }
+        .salida-num > div:first-child { border-left: 0; padding-left: 0; }
+        .vivo-et { font-family: var(--font-mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--outline); }
+        .vivo-nivel { font-family: var(--font-mono); font-size: 27px; font-weight: 700; color: var(--primary); line-height: 1.15; margin-top: 5px; }
+        .vivo-val { font-family: var(--font-mono); font-size: 27px; font-weight: 700; color: var(--text-primary); line-height: 1.15; margin-top: 5px; }
+        .vivo-sub { font-family: var(--font-mono); font-size: 10px; color: var(--outline); margin-top: 5px; line-height: 1.5; }
+
+        .escala { position: relative; height: 34px; margin-top: 22px; }
+        .escala-barras { display: flex; gap: 2px; height: 7px; border-radius: 4px; overflow: hidden; }
+        .escala-barras span { flex: 1; background: rgba(255, 255, 255, .09); }
+        .escala-marca {
+            position: absolute; top: 13px; width: 2px; height: 21px;
+            background: var(--primary-container); transition: left .25s ease;
+        }
+        .escala-marca::before {
+            content: ''; position: absolute; top: -4px; left: -3px;
+            width: 8px; height: 8px; border-radius: 50%; background: var(--primary-container);
+        }
+        .escala-etq { display: flex; gap: 2px; font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: var(--outline); }
+        .escala-etq span { flex: 1; text-align: center; }
+        .escala-etq span.on { color: var(--primary); font-weight: 700; }
+
+        .aviso {
+            margin-top: 14px; padding: 9px 12px; border-left: 3px solid var(--status-warning);
+            background: rgba(245, 158, 11, .08); border-radius: 0 6px 6px 0;
+            font-size: 11px; color: #fbbf24; line-height: 1.6;
+        }
+        .aviso[hidden] { display: none; }
+
+        /* El efecto del peso */
+        .peso { margin-top: 18px; background: var(--surface-container-lowest); border: 1px solid rgba(255, 255, 255, .06); border-radius: 10px; padding: 14px; }
+        .peso[hidden] { display: none; }
+        .peso-tit { font-family: var(--font-mono); font-size: 11px; font-weight: 500; color: var(--on-surface-variant); margin-bottom: 14px; }
+        .peso-fila { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .punto { text-align: center; padding: 9px 4px; border-radius: 8px; }
+        .punto.actual { background: rgba(0, 210, 255, .07); box-shadow: inset 0 0 0 1px rgba(0, 210, 255, .28); }
+        .punto .kg { font-family: var(--font-mono); font-size: 11px; color: var(--outline); }
+        .punto .dots { font-family: var(--font-mono); font-size: 21px; font-weight: 700; color: var(--text-primary); margin: 2px 0; }
+        .punto .dl { font-family: var(--font-mono); font-size: 11px; font-weight: 700; }
+        .dl.pos { color: #4ade80; }
+        .dl.neg { color: #f87171; }
+        .peso-nota { font-size: 10px; color: var(--outline); line-height: 1.65; margin-top: 12px; }
+
+        /* Los textos del resultado */
+        .res-dist {
+            font-size: 12px; color: var(--on-surface-variant); line-height: 1.75;
+            margin-top: 20px; padding-top: 18px; border-top: 1px solid rgba(255, 255, 255, .07);
+        }
+        .res-dist b { color: var(--primary); font-weight: 700; }
+        .res-def { font-size: 12px; color: var(--on-surface-variant); line-height: 1.75; margin-top: 10px; }
+        .res-def b { color: var(--text-primary); font-weight: 600; }
+        .res-lim { font-size: 11px; color: var(--status-warning); line-height: 1.65; margin-top: 10px; }
+        .res-lim:empty { display: none; }
+        .badge-n {
+            font-family: var(--font-mono); font-size: 11px; padding: 3px 9px; border-radius: 999px;
+            background: var(--surface-container); color: var(--on-surface-variant);
+        }
+
+        /* ── Bento de la Capa 01 (numeros REALES) ───────────────────────── */
+        .bento { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 32px; }
+        @media (max-width: 900px) { .bento { grid-template-columns: 1fr; } }
+        .wide { grid-column: span 2; }
+        @media (max-width: 900px) { .wide { grid-column: span 1; } }
+        .bento-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .bento h3 { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+        .bento .q { font-family: var(--font-mono); font-size: 10px; color: var(--outline); }
+        .barra { height: 8px; border-radius: 4px; background: var(--surface-container); overflow: hidden; margin-top: 6px; }
+        .barra i { display: block; height: 8px; border-radius: 4px; background: var(--primary-container); }
+        .fila { margin-top: 12px; }
+        .fila-top { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 11px; }
+        .fila-top b { color: var(--text-primary); font-weight: 600; }
+        .nota { font-family: var(--font-mono); font-size: 10px; color: var(--outline); margin-top: 14px; display: flex; justify-content: space-between; }
+
+        /* Donut */
+        .donut-wrap { display: flex; align-items: center; justify-content: center; gap: 24px; padding: 10px 0; }
+        .donut { position: relative; width: 124px; height: 124px; }
+        .donut svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .donut-centro { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+        .donut-centro span { font-family: var(--font-mono); font-size: 10px; color: var(--outline); display: block; }
+        .donut-centro b { font-size: 15px; color: var(--text-primary); font-weight: 600; }
+        .leyenda { display: flex; flex-direction: column; gap: 12px; }
+        .leyenda div { display: flex; align-items: center; gap: 8px; }
+        .leyenda i { width: 10px; height: 10px; border-radius: 50%; display: block; }
+        .leyenda small { font-family: var(--font-mono); font-size: 10px; color: var(--outline); display: block; }
+
+        /* ── SQL ────────────────────────────────────────────────────────── */
+        .sql { margin-top: 32px; background: var(--surface-container-lowest); border: 1px solid rgba(255, 255, 255, .06); border-radius: 16px; overflow: hidden; }
+        .sql-bar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: var(--surface-container-high); }
+        .luces { display: flex; gap: 5px; }
+        .luces i { width: 9px; height: 9px; border-radius: 50%; display: block; }
+        .sql-file { font-family: var(--font-mono); font-size: 11px; color: var(--text-primary); background: var(--background); padding: 4px 10px; border-radius: 5px; }
+        .sql-body { display: flex; gap: 16px; padding: 18px; overflow-x: auto; }
+        .sql-lines { font-family: var(--font-mono); font-size: 12px; line-height: 1.75; color: var(--outline-variant); text-align: right; user-select: none; }
+        .sql-code { font-family: var(--font-mono); font-size: 12px; line-height: 1.75; color: #dfe2ee; white-space: pre; }
+        .kw { color: var(--secondary); font-weight: 600; }
+        .fn { color: var(--primary-container); }
+        .st { color: var(--status-pass); }
+        .cm { color: var(--outline); }
+
+        /* ── Footer ─────────────────────────────────────────────────────── */
+        footer { background: var(--surface-container-lowest); padding: 40px 0 32px; border-top: 1px solid var(--outline-variant); }
+        .foot { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; font-family: var(--font-mono); font-size: 11px; color: var(--outline); }
+        .foot a { color: var(--primary); text-decoration: none; }
+
+        .spike {
+            background: rgba(245, 158, 11, .1); border-bottom: 1px solid rgba(245, 158, 11, .3);
+            color: #fbbf24; font-family: var(--font-mono); font-size: 11px; padding: 8px 32px; text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="spike">SPIKE &mdash; candidato de rediseno. No reemplaza nada: comparador.html e index.html siguen intactos y publicados.</div>
+
+    <header class="nav">
+        <div class="wrap nav-in">
+            <div class="nav-brand">
+                <div class="nav-mark">LC</div>
+                <div>
+                    <div class="nav-title">LC. Data | Sport Architecture</div>
+                    <div class="nav-sub">
+                        <span class="dot pulse"></span>
+                        <span class="label-code" style="color: var(--on-surface-variant)"
+                            id="nav-estado">Dataset: OpenPowerlifting</span>
+                    </div>
+                </div>
+            </div>
+            <nav class="nav-links">
+                <a href="#proyecto">El Proyecto</a>
+                <a href="#comparador">Comparador (Capa 02)</a>
+                <a href="#capa01">Dashboard (Capa 01)</a>
+                <a href="#sql">SQL</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero" id="proyecto">
+        <div class="glow glow-a"></div>
+        <div class="glow glow-b"></div>
+        <div class="wrap" style="position: relative">
+            <div class="pills">
+                <div class="pill pill-surface">
+                    <span class="dot pulse"></span>
+                    <span>SPORT PERFORMANCE DATA ARCHITECTURE</span>
+                    <span class="sep">/</span>
+                    <span style="color: var(--on-surface-variant)">GCP &middot; BigQuery</span>
+                </div>
+                <div class="pill pill-pass" id="pill-qa">
+                    <span>&#10003;</span><span>QA Checks Passed</span>
+                </div>
+                <div class="pill pill-flat" id="pill-datos">
+                    <span>BigQuery RAW</span>
+                </div>
+            </div>
+
+            <div class="hero-grid">
+                <div>
+                    <h1>Empezo en un salon de pilates.<br><span class="grad">Termino en BigQuery.</span></h1>
+                    <p class="lead">
+                        Licenciado en Educacion Fisica. Tester de profesion. Analista de datos por conviccion.
+                        Cuatro amigos, dos kettlebells y una pregunta que no me dejaba en paz:
+                        <strong>como se que esto esta funcionando?</strong> No como sensacion. Como dato.
+                    </p>
+                </div>
+                <div class="drift">
+                    <div class="drift-top">
+                        <span class="label-code">PIPELINE DRIFT MONITOR</span>
+                        <span style="color: var(--status-pass)">&#8635;</span>
+                    </div>
+                    <div class="drift-big" id="drift-big">&mdash;</div>
+                    <p style="font-size: 12px; color: var(--on-surface-variant); line-height: 1.6" id="drift-txt">
+                        Cargando el dato real&hellip;
+                    </p>
+                </div>
+            </div>
+
+            <div class="cards">
+                <div class="card">
+                    <div class="card-head">
+                        <span class="label-code" style="color: var(--outline)">REGLA 01 &middot; STORAGE</span>
+                        <span class="card-ico" style="color: var(--primary-container)">&#9633;</span>
+                    </div>
+                    <div class="metric" id="kpi-filas">&mdash;</div>
+                    <p>Un solo dataset crudo en Cloud Storage. Sin limpiezas silenciosas, sin imputacion sintetica.</p>
+                </div>
+                <div class="card">
+                    <div class="card-head">
+                        <span class="label-code" style="color: var(--outline)">REGLA 02 &middot; DETERMINISMO</span>
+                        <span class="card-ico" style="color: var(--secondary)">&#9654;</span>
+                    </div>
+                    <div class="metric" id="kpi-queries">&mdash;</div>
+                    <p>Queries SQL versionadas enteras en Git. Ningun numero del sitio esta escrito a mano.</p>
+                </div>
+                <div class="card">
+                    <div class="card-head">
+                        <span class="label-code" style="color: var(--outline)">Q1 &middot; RECURRENCIA</span>
+                        <span class="card-ico" style="color: var(--status-pass)">&#8635;</span>
+                    </div>
+                    <div class="metric" id="kpi-ratio">&mdash;</div>
+                    <p>Participaciones promedio por atleta. Sale de contar participaciones y atletas unicos en la misma consulta.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- COMPARADOR: el motor REAL -->
+    <section class="sec-alt" id="comparador">
+        <div class="wrap">
+            <div class="sec-tag">
+                <span class="sq"></span>
+                <span class="label-code" style="color: var(--secondary); letter-spacing: .08em">CAPA 02 &middot; COMPARADOR DE COHORTE</span>
+            </div>
+            <h2>Donde esta parado un perfil, en numeros</h2>
+            <p class="sec-sub">
+                Corre entero en el navegador contra <span class="mono" style="color: var(--primary)">cohortes.json</span>:
+                percentiles empiricos de cada celda, calculados sobre el dataset crudo. Sin backend, sin estimaciones.
+                El perfil se carga a mano y el resultado es un percentil, no un consejo.
+            </p>
+
+            <div class="cmp">
+                <!-- Formulario -->
+                <div class="panel">
+                    <div class="field">
+                        <label>01 &middot; Sexo</label>
+                        <div class="btns">
+                            <button class="btn on" data-sexo="M">Masculino</button>
+                            <button class="btn" data-sexo="F">Femenino</button>
+                        </div>
+                    </div>
+                    <div class="row2">
+                        <div class="field">
+                            <label>02 &middot; Edad</label>
+                            <input type="number" id="f-edad" value="27">
+                        </div>
+                        <div class="field">
+                            <label>03 &middot; Peso (kg)</label>
+                            <input type="number" id="f-peso" value="88">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>04 &middot; Equipamiento</label>
+                        <select id="f-equipo"></select>
+                    </div>
+                    <div class="row2">
+                        <div class="field">
+                            <label>Sentadilla (kg)</label>
+                            <input type="number" id="f-sent" value="220">
+                        </div>
+                        <div class="field">
+                            <label>Banco (kg)</label>
+                            <input type="number" id="f-bench" value="140">
+                        </div>
+                    </div>
+                    <div class="row2">
+                        <div class="field">
+                            <label>Despegue (kg)</label>
+                            <input type="number" id="f-dead" value="250">
+                        </div>
+                        <div class="field">
+                            <label>Alcance</label>
+                            <select id="f-alcance"></select>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Ventana temporal</label>
+                        <select id="f-ventana"></select>
+                    </div>
+
+                    <div class="hint">
+                        Corre entero en el navegador contra <b>cohortes.json</b>: sin backend y sin llamadas a
+                        BigQuery. El resultado se recalcula a cada tecla.
+                    </div>
+                </div>
+
+                <!-- La salida: el medidor vivo y los numeros, en un solo panel -->
+                <div class="panel salida" id="res" hidden>
+                    <div class="salida-top">
+                        <div class="sec-tag" style="margin-bottom: 0">
+                            <span class="dot pulse"></span>
+                            <span class="label-code" style="color: var(--status-pass)">COHORTE AUDITADA ACTIVA</span>
+                        </div>
+                        <span class="badge-n" id="r-badge"></span>
+                    </div>
+
+                    <div class="salida-num">
+                        <div>
+                            <div class="vivo-et">Nivel</div>
+                            <div class="vivo-nivel" id="v-nivel">&mdash;</div>
+                            <div class="vivo-sub" id="v-nivel-sub"></div>
+                        </div>
+                        <div>
+                            <div class="vivo-et">Puntaje (Dots)</div>
+                            <div class="vivo-val" id="v-dots">&mdash;</div>
+                            <div class="vivo-sub">normalizado por peso</div>
+                        </div>
+                        <div>
+                            <div class="vivo-et">Percentil</div>
+                            <div class="vivo-val" id="v-perc">&mdash;</div>
+                            <div class="vivo-sub" id="v-perc-sub"></div>
+                        </div>
+                    </div>
+
+                    <div class="escala">
+                        <div class="escala-barras"><span></span><span></span><span></span><span></span><span></span></div>
+                        <div class="escala-marca" id="e-marca"></div>
+                        <div class="escala-etq" id="e-etq"></div>
+                    </div>
+
+                    <div class="aviso" id="v-aviso" hidden></div>
+
+                    <div class="peso" id="v-peso" hidden>
+                        <div class="peso-tit">El mismo total, distinto peso corporal</div>
+                        <div class="peso-fila" id="v-peso-fila"></div>
+                        <div class="peso-nota" id="v-peso-nota"></div>
+                    </div>
+
+                    <div class="res-dist" id="r-dist"></div>
+                    <div class="res-def" id="r-def"></div>
+                    <div class="res-lim" id="r-lim"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DASHBOARD CAPA 01: numeros reales de data.json -->
+    <section id="capa01">
+        <div class="wrap">
+            <div class="sec-tag">
+                <span class="sq" style="background: var(--primary-container)"></span>
+                <span class="label-code" style="color: var(--primary-container); letter-spacing: .08em">CAPA 01 &middot; DESCRIPTIVA</span>
+            </div>
+            <h2>El censo del powerlifting argentino</h2>
+            <p class="sec-sub" id="capa01-sub">Cargando&hellip;</p>
+
+            <div class="bento">
+                <div class="card">
+                    <div class="bento-h">
+                        <span class="q">Q2_SEX_DISTRIBUTION</span>
+                        <span class="q" style="color: var(--primary)">&#9673;</span>
+                    </div>
+                    <h3>Distribucion por sexo</h3>
+                    <div class="donut-wrap">
+                        <div class="donut">
+                            <svg viewBox="0 0 36 36">
+                                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                    fill="none" stroke="#262a33" stroke-width="4.5"></path>
+                                <path id="donut-m" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                    fill="none" stroke="#adc6ff" stroke-width="4.5" stroke-dasharray="0, 100"></path>
+                                <path id="donut-f" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                    fill="none" stroke="#00d2ff" stroke-width="4.5" stroke-dasharray="0, 100"
+                                    stroke-dashoffset="0"></path>
+                            </svg>
+                            <div class="donut-centro">
+                                <span>TOTAL</span><b id="donut-total">&mdash;</b>
+                            </div>
+                        </div>
+                        <div class="leyenda" id="leyenda-sexo"></div>
+                    </div>
+                    <div class="nota"><span>Medido, no estimado</span><span style="color: var(--status-pass)">&#8226; data.json</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="bento-h">
+                        <span class="q">Q3_FEDERATION_VOLUME</span>
+                        <span class="q" style="color: var(--secondary)">&#9641;</span>
+                    </div>
+                    <h3>Federaciones por volumen</h3>
+                    <div id="feds" style="margin-top: 10px"></div>
+                    <div class="nota"><span id="feds-nota">&mdash;</span><span style="color: var(--primary)">reales</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="bento-h">
+                        <span class="q">Q4A_EVENT &middot; Q4B_EQUIPMENT</span>
+                        <span class="q" style="color: var(--tertiary)">&#9650;</span>
+                    </div>
+                    <h3>Evento y equipamiento</h3>
+                    <div id="eventos" style="margin-top: 12px"></div>
+                    <div id="equipos" style="margin-top: 16px"></div>
+                </div>
+
+                <div class="card wide">
+                    <div class="bento-h">
+                        <span class="q">Q5_YEARLY_TRAJECTORY</span>
+                        <span class="q" style="color: var(--primary)">&#8599;</span>
+                    </div>
+                    <h3>Evolucion temporal</h3>
+                    <div id="serie" style="margin-top: 14px"></div>
+                    <div class="nota"><span id="serie-nota">&mdash;</span><span id="serie-rango" style="color: var(--outline)"></span></div>
+                </div>
+
+                <div class="card">
+                    <div class="bento-h">
+                        <span class="q">Q10A_AUDIT_HEALTH</span>
+                        <span class="q" style="color: var(--status-pass)">&#10003;</span>
+                    </div>
+                    <h3>Completitud del dato</h3>
+                    <div id="calidad" style="margin-top: 12px"></div>
+                    <div class="nota" style="display: block; line-height: 1.6">
+                        Los nulos no son bugs: reflejan abandonos y descalificaciones reales.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SQL REAL -->
+    <section class="sec-alt" id="sql">
+        <div class="wrap">
+            <div class="sec-tag">
+                <span class="sq" style="background: var(--tertiary)"></span>
+                <span class="label-code" style="color: var(--tertiary); letter-spacing: .08em">SQL &middot; VERSIONADO EN GIT</span>
+            </div>
+            <h2>La consulta que produce Q2</h2>
+            <p class="sec-sub">
+                Este es el SQL real del repositorio, no una ilustracion. Cada numero del dashboard sale de una de estas.
+            </p>
+
+            <div class="sql">
+                <div class="sql-bar">
+                    <div class="luces">
+                        <i style="background: #ef4444"></i><i style="background: #f59e0b"></i><i style="background: #10b981"></i>
+                    </div>
+                    <span class="sql-file" id="sql-file">SQL/phase_2_core/QueryCapa01.sql</span>
+                    <span class="label-code" style="color: var(--status-pass)">&#10003; versionado</span>
+                </div>
+                <div class="sql-body">
+                    <div class="sql-lines" id="sql-lines"></div>
+                    <div class="sql-code" id="sql-code">Cargando el SQL real&hellip;</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="wrap foot">
+            <span id="pie-fuente">&mdash;</span>
+            <span>
+                <a href="https://lisandrocacciatore.github.io/Arg_Plifting_Analysis/" target="_blank" rel="noreferrer">Sitio actual</a>
+                &nbsp;&middot;&nbsp;
+                <a href="https://github.com/LisandroCacciatore/Arg_Plifting_Analysis" target="_blank" rel="noreferrer">Repositorio</a>
+            </span>
+        </div>
+    </footer>
+
+    <script src="assets/js/comparador.js"></script>
+    <script src="assets/js/rediseno-pagina.js"></script>
+</body>
+
+</html>

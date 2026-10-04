@@ -10,7 +10,7 @@ Es la forma ejecutable de la regla de docs/03_Arquitectura/02_Fase_02/
 04_Testing_Capa02.md: "todo test tiene que poder fallar".
 
 Uso:
-    python scripts/verificar_tests.py              verifica las 38 roturas
+    python scripts/verificar_tests.py              verifica las 40 roturas
     python scripts/verificar_tests.py --listar     muestra las roturas sin correr
     python scripts/verificar_tests.py --solo 3     corre solo la rotura numero 3
 
@@ -33,11 +33,14 @@ HTML = RAIZ / "comparador.html"
 COHORTES = RAIZ / "assets" / "data" / "cohortes.json"
 SQL = RAIZ / "SQL" / "phase_3_scala" / "QueryCapa02.sql"
 GENERADOR_OG = RAIZ / "scripts" / "og_capa02.html"
+REDISENO = RAIZ / "rediseno.html"
+REDISENO_JS = RAIZ / "assets" / "js" / "rediseno-pagina.js"
 
 NODE_COMPARADOR = ["node", "--test", "tests/frontend/comparador.test.mjs"]
 NODE_PAGINA = ["node", "--test", "tests/frontend/pagina-comparador.test.mjs"]
 PY_CONTRATO = [PY, "-m", "pytest", "tests/test_comparador_html_contract.py", "-q"]
 PY_COHORTES = [PY, "-m", "pytest", "tests/test_cohortes.py", "-q"]
+PY_NUMEROS = [PY, "-m", "pytest", "tests/test_rediseno_sin_numeros.py", "-q"]
 
 # (que se rompe, archivo, texto original, reemplazo, comando que debe fallar)
 # El texto original tiene que matchear el archivo: si no matchea, el script lo
@@ -326,6 +329,20 @@ ROTURAS = [
         '\n            <div class="valor">378,8</div>',
         '\n            <div class="valor">999,9</div>',
         PY_CONTRATO,
+    ),
+    (
+        "un numero tipeado en el HTML (el '61 tests' de la pagina vieja)",
+        REDISENO,
+        "calculados sobre el dataset crudo.",
+        "calculados sobre 3,66 M de filas.",
+        PY_NUMEROS,
+    ),
+    (
+        "un numero tipeado en un texto del JS (el caso '0<em>...')",
+        REDISENO_JS,
+        "el('kpi-queries').innerHTML = String(nq) + '<em>queries SQL</em>';",
+        "el('kpi-queries').innerHTML = '11' + '<em>queries SQL</em>';",
+        PY_NUMEROS,
     ),
 ]
 

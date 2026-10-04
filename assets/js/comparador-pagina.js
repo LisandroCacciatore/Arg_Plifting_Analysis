@@ -312,7 +312,7 @@
           &middot; clase de edad <strong>${esc(c.edadClase || 'sin clase')}</strong>
           &middot; ${esc(etq(ETIQUETAS.formato, c.equipamiento))}
           &middot; evento SBD<br>
-          <span style="font-size:.78rem;color:#64748b">${esc(ETIQUETAS.calidad[c.calidad] || c.calidad)}</span>
+          <span style="font-size:.78rem;color:#859399">${esc(ETIQUETAS.calidad[c.calidad] || c.calidad)}</span>
         </div>
         ${aviso}
       </div>`;
@@ -356,7 +356,7 @@
         ${distancia}
         <div class="cmp-def" style="margin-top:.6rem">
           Dots reconstruido: <strong>${p.valor == null ? 'sin dato' : fmt(p.valor, 1)}</strong><br>
-          <span style="font-size:.78rem;color:#64748b">El puntaje normaliza por peso corporal, asi que
+          <span style="font-size:.78rem;color:#859399">El puntaje normaliza por peso corporal, asi que
           permite comparar entre categorias. No se pide el Dots: se reconstruye desde el peso y el total.
           El nivel sale del percentil medido, no de un corte elegido a mano.</span>
         </div>
@@ -380,7 +380,7 @@
     }).join('');
 
     const ratios = `
-      <tr><td colspan="5" style="border-top:none;padding-top:1rem;color:#64748b;font-size:.78rem">
+      <tr><td colspan="5" style="border-top:none;padding-top:1rem;color:#859399;font-size:.78rem">
         Relaciones contra la sentadilla: banco <strong style="color:var(--text-primary)">${fmt(r.ratios.banco.valor, 3)}</strong>
         (${pct(r.ratios.banco.percentil)}) &middot;
         despegue <strong style="color:var(--text-primary)">${fmt(r.ratios.despegue.valor, 3)}</strong>

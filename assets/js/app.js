@@ -53,9 +53,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderDonut('chartEquipo', data.q4b_equipamiento, 'Equipment', 'porcentaje');
     renderDonut('chartAmbito', data.q8b_ambito, 'ambito_competencia', 'porcentaje');
     renderDonut('chartPlace', data.q9b_place, 'tipo_resultado', 'porcentaje',
-        false, ['#22c55e', '#ef4444', '#f59e0b', '#06b6d4', '#8b5cf6', '#475569']);
+        false, ['#10b981', '#ef4444', '#f59e0b', '#00d2ff', '#adc6ff', '#3c494e']);
     renderDonut('chartTotal', data.q10a_total, 'estado_total', 'porcentaje',
-        false, ['#3b82f6', '#475569', '#ef4444']);
+        false, ['#00d2ff', '#3c494e', '#ef4444']);
 
     inicializarTemporal(data.q5_temporal);
 });
@@ -141,10 +141,10 @@ function renderizarEdad(edad) {
     if (!container || !edad) return;
     container.innerHTML = '';
 
-    const colores = { 'Edad conocida': '#22c55e', 'Solo AgeClass disponible': '#f59e0b', 'Sin información etaria': '#ef4444' };
+    const colores = { 'Edad conocida': '#10b981', 'Solo AgeClass disponible': '#f59e0b', 'Sin información etaria': '#ef4444' };
 
     edad.forEach(d => {
-        const color = colores[d.estado_edad] || '#64748b';
+        const color = colores[d.estado_edad] || '#859399';
         container.innerHTML += `
         <div class="status-item">
             <div class="status-dot" style="background:${color}"></div>
@@ -189,7 +189,7 @@ function mostrarErrorDeCarga(err) {
 // =============================================================================
 // Gráfico genérico tipo Doughnut
 // =============================================================================
-const PALETA_DEFAULT = ['#3b82f6', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#475569'];
+const PALETA_DEFAULT = ['#00d2ff', '#adc6ff', '#00d2ff', '#10b981', '#f59e0b', '#ef4444', '#3c494e'];
 
 // Chart.js v4 lanza error si se crea un segundo gráfico sobre un canvas ya
 // usado, y ese error aborta TODO el render. Destruir antes de crear hace que
@@ -296,11 +296,11 @@ function aplicarFiltroTemporal(desde) {
 
     renderTemporal(visibles);
     renderTemporalMetrica('chartTiempoParticipaciones', visibles,
-        'participaciones', 'Participaciones', '#3b82f6');
+        'participaciones', 'Participaciones', '#00d2ff');
     renderTemporalMetrica('chartTiempoAtletas', visibles,
-        'atletas_unicos', 'Atletas únicos', '#8b5cf6');
+        'atletas_unicos', 'Atletas únicos', '#adc6ff');
     renderTemporalMetrica('chartTiempoFederaciones', visibles,
-        'federaciones_activas', 'Federaciones activas', '#06b6d4');
+        'federaciones_activas', 'Federaciones activas', '#00d2ff');
 }
 
 // Gráfico unificado: participaciones + atletas únicos
@@ -311,8 +311,8 @@ function renderTemporal(filas) {
 
     const ctx = canvas.getContext('2d');
     const areaGrad = ctx.createLinearGradient(0, 0, 0, 260);
-    areaGrad.addColorStop(0, 'rgba(59,130,246,0.35)');
-    areaGrad.addColorStop(1, 'rgba(59,130,246,0)');
+    areaGrad.addColorStop(0, 'rgba(0, 210, 255,0.35)');
+    areaGrad.addColorStop(1, 'rgba(0, 210, 255,0)');
 
     new Chart(canvas, {
         type: 'line',
@@ -322,25 +322,25 @@ function renderTemporal(filas) {
                 {
                     label: 'Participaciones',
                     data: filas.map(f => f.participaciones),
-                    borderColor: '#3b82f6',
+                    borderColor: '#00d2ff',
                     backgroundColor: areaGrad,
                     tension: 0.4,
                     fill: true,
                     pointRadius: 4,
                     pointHoverRadius: 7,
-                    pointBackgroundColor: '#3b82f6'
+                    pointBackgroundColor: '#00d2ff'
                 },
                 {
                     label: 'Atletas únicos',
                     data: filas.map(f => f.atletas_unicos),
-                    borderColor: '#8b5cf6',
+                    borderColor: '#adc6ff',
                     backgroundColor: 'transparent',
                     tension: 0.4,
                     fill: false,
                     pointRadius: 3,
                     pointHoverRadius: 6,
                     borderDash: [5, 3],
-                    pointBackgroundColor: '#8b5cf6'
+                    pointBackgroundColor: '#adc6ff'
                 }
             ]
         },
