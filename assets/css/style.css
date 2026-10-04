@@ -621,22 +621,16 @@ footer {
     margin-left: 0.25rem;
 }
 
-/* ==========================================================================
-   Etiquetas tecnicas en monoespaciada
-   El diseno reserva la mono para lo que es dato o etiqueta, nunca para prosa.
-   Es la mitad de la identidad visual; la otra mitad es el cian.
-   ========================================================================== */
+/* Monoespaciada SOLO para lo que es etiqueta o dato: el logotipo, los badges y
+   los controles tecnicos. Los titulos de las tarjetas son prosa —aunque sean
+   cortos— y van en Inter: en el diseno la mono nunca lleva una frase. */
 .logo,
-.stat-info h3 {
+.filtro-btn,
+.filtro-nota {
     font-family: var(--font-mono);
-}
-
-.stat-info h3 {
-    letter-spacing: -0.01em;
 }
 
 .filtro-btn,
 .filtro-nota {
-    font-family: var(--font-mono);
     letter-spacing: 0.02em;
 }
